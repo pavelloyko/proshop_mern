@@ -108,3 +108,27 @@ No test suite is configured. No linter config exists beyond the default `react-a
 - After adding a new Mongoose model, update `backend/seeder.js` to include it in the `importData`/`destroyData` functions so the seed workflow stays consistent
 - After adding a new admin route, remember to chain `.post(protect, admin, ...)` or equivalent — there is no route-level guard, auth is per-handler
 - New Redux state slices must be added to `combineReducers` in `store.js` AND corresponding `localStorage` persistence logic if state should survive page refresh
+
+## Manual Review Additions
+
+### Team Conventions
+- Branches: `feature/<desc>`, `fix/<desc>`. Commits: imperative mood, English
+- PR prefix with scope: `[frontend]`, `[backend]`, `[fullstack]`
+- Before PR: `npm run dev` starts clean, no console.log left, no hardcoded URLs
+
+### Local Gotchas
+- react-router-dom v5 — use `useHistory()`, NOT v6 `useNavigate`/`<Routes>`
+- Route order matters in Express — specific paths (`/top`) must be registered before param routes (`/:id`)
+- `mongoose` v5 — `model.remove()` works here, do not "modernize" to v6+ syntax
+- `frontend/src/bootstrap.min.css` is vendored — never edit directly, use `index.css` for overrides
+- Product image upload writes to `/uploads/` at project root — must exist and be writable
+
+### Deployment Quirks
+- `heroku-postbuild` builds frontend automatically. For other hosts: `cd frontend && npm run build`, then set `NODE_ENV=production`
+- Production needs MongoDB Atlas (not local Docker) — set `MONGO_URI` to Atlas connection string
+
+### AI Collaboration Preferences
+- Explanations in Russian, code and comments in English
+- Do not refactor beyond task scope — this is a legacy learning project
+- Follow existing patterns (REQUEST/SUCCESS/FAIL triples, folder structure) — consistency over modern practices
+- When adding features touching multiple files, list all affected files before writing code
