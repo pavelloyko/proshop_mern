@@ -1,127 +1,183 @@
-# ProShop eCommerce Platform
+# ProShop
 
-> eCommerce platform built with the MERN stack & Redux.
+eCommerce платформа на MERN-стеке для онлайн-магазина с админ-панелью. Учебный проект курса Brad Traversy (MERN eCommerce from scratch).
 
-### THIS PROJECT IS DEPRECATED
-This project is no longer supported. The new project/course has been released. The code has been cleaned up and now uses Redux Toolkit. You can find the new version [HERE](https://github.com/bradtraversy/proshop-v2)
+Функционал: каталог товаров с поиском и пагинацией, корзина, оформление заказа, PayPal-оплата (sandbox), отзывы и рейтинги, профили пользователей, админ-панель для управления товарами/пользователями/заказами.
 
-![screenshot](https://github.com/bradtraversy/proshop_mern/blob/master/uploads/Screen%20Shot%202020-09-29%20at%205.50.52%20PM.png)
+## Tech Stack
 
-## Features
+| Слои | Технологии | Версия |
+|---|---|---|
+| Runtime | Node.js | **v16** (обязательно, см. Troubleshooting) |
+| Backend | Express, Mongoose, JWT, bcryptjs, multer | Express 4.x, Mongoose 5.x |
+| Frontend | React, Redux + Thunk, React-Bootstrap, Axios | React 16.x, React Router 5.x |
+| Database | MongoDB | 7.x (Docker) или локальная установка |
+| Payments | PayPal (react-paypal-button-v2) | Sandbox mode |
 
-- Full featured shopping cart
-- Product reviews and ratings
-- Top products carousel
-- Product pagination
-- Product search feature
-- User profile with orders
-- Admin product management
-- Admin user management
-- Admin Order details page
-- Mark orders as delivered option
-- Checkout process (shipping, payment method, etc)
-- PayPal / credit card integration
-- Database seeder (products & users)
-
-## Note on Issues
-Please do not post issues here that are related to your own code when taking the course. Add those in the Udemy Q/A. If you clone THIS repo and there are issues, then you can submit
-
-## Usage
-
-### ES Modules in Node
-
-We use ECMAScript Modules in the backend in this project. Be sure to have at least Node v14.6+ or you will need to add the "--experimental-modules" flag.
-
-Also, when importing a file (not a package), be sure to add .js at the end or you will get a "module not found" error
-
-You can also install and setup Babel if you would like
-
-### Env Variables
-
-Create a .env file in then root and add the following
+## Project Structure
 
 ```
-NODE_ENV = development
-PORT = 5000
-MONGO_URI = your mongodb uri
-JWT_SECRET = 'abc123'
-PAYPAL_CLIENT_ID = your paypal client id
+proshop_mern/
+├── backend/
+│   ├── config/db.js          # MongoDB connection
+│   ├── controllers/          # Express route handlers (per resource)
+│   ├── data/                 # Seed data (users.js, products.js)
+│   ├── middleware/            # auth (JWT + admin check), error handler
+│   ├── models/               # Mongoose schemas (Product, User, Order)
+│   ├── routes/               # Express routers (per resource)
+│   ├── utils/                # generateToken (JWT helper)
+│   ├── seeder.js             # DB seed script (import/destroy)
+│   └── server.js             # Entry point
+├── frontend/
+│   ├── public/               # Static assets, product images
+│   └── src/
+│       ├── actions/          # Redux actions (product, user, order, cart)
+│       ├── components/       # Reusable UI (Header, Footer, Product card, etc.)
+│       ├── constants/        # Redux action type strings
+│       ├── reducers/         # Redux reducers
+│       ├── screens/          # Page-level components (one per route)
+│       ├── App.js            # Router setup
+│       ├── store.js          # Redux store (combineReducers + localStorage)
+│       └── bootstrap.min.css # Vendored Bootstrap (do not edit)
+├── uploads/                  # User-uploaded product images (multer)
+├── .env.example              # Environment variables template
+├── CLAUDE.md                 # AI assistant rules file
+└── package.json              # Backend deps + concurrently/nodemon
 ```
 
-### Install Dependencies (frontend & backend)
+## Quick Start
 
+### Prerequisites
+
+- **Node.js v16** — проект не работает на Node 18+ (webpack 4 и buffer-equal-constant-time несовместимы). Используйте [nvm](https://github.com/nvm-sh/nvm):
+  ```bash
+  nvm install 16
+  nvm use 16
+  ```
+- **MongoDB** — любой способ:
+  ```bash
+  # Вариант 1: Docker (рекомендуется)
+  docker run -d -p 27017:27017 --name mongo mongo:7
+
+  # Вариант 2: Homebrew
+  brew tap mongodb/brew
+  brew install mongodb-community
+  brew services start mongodb-community
+  ```
+
+### Environment Variables
+
+Скопируйте `.env.example` в `.env` и заполните:
+
+```bash
+cp .env.example .env
 ```
-npm install
-cd frontend
-npm install
-```
 
-### Run
+| Variable | Description | Example |
+|---|---|---|
+| `NODE_ENV` | Режим запуска | `development` |
+| `PORT` | Порт backend | `5001` (не 5000 — занят AirPlay на macOS) |
+| `MONGO_URI` | Строка подключения MongoDB | `mongodb://localhost:27017/proshop` |
+| `JWT_SECRET` | Секрет для JWT-токенов | любая строка |
+| `PAYPAL_CLIENT_ID` | Client ID из PayPal Developer Sandbox | получить на [developer.paypal.com](https://developer.paypal.com) |
 
-```
-# Run frontend (:3000) & backend (:5000)
-npm run dev
+### Install & Run
 
-# Run backend only
-npm run server
-```
+```bash
+# Клонировать
+git clone https://github.com/pavelloyko/proshop_mern.git
+cd proshop_mern
 
-## Build & Deploy
+# Установить зависимости (backend + frontend)
+npm install && cd frontend && npm install && cd ..
 
-```
-# Create frontend prod build
-cd frontend
-npm run build
-```
-
-There is a Heroku postbuild script, so if you push to Heroku, no need to build manually for deployment to Heroku
-
-### Seed Database
-
-You can use the following commands to seed the database with some sample users and products as well as destroy all data
-
-```
-# Import data
+# Заполнить базу тестовыми данными
 npm run data:import
 
-# Destroy data
-npm run data:destroy
+# Запустить (backend :5001 + frontend :3000)
+npm run dev
 ```
 
+Открыть **http://localhost:3000**
+
+### Seed Data Accounts
+
+| Email | Password | Role |
+|---|---|---|
+| admin@example.com | 123456 | Admin |
+| john@example.com | 123456 | Customer |
+| jane@example.com | 123456 | Customer |
+
+### Useful Commands
+
+```bash
+npm run dev           # Backend + Frontend concurrently
+npm run server        # Backend only (nodemon)
+npm run client        # Frontend only
+npm run data:import   # Seed database
+npm run data:destroy  # Wipe all data
 ```
-Sample User Logins
 
-admin@example.com (Admin)
-123456
+## Troubleshooting
 
-john@example.com (Customer)
-123456
+### `EACCES: permission denied` при npm install
 
-jane@example.com (Customer)
-123456
+npm cache принадлежит другому пользователю:
+```bash
+sudo chown -R $(whoami) ~/.npm
+npm cache clean --force
 ```
 
+### `ERR_OSSL_EVP_UNSUPPORTED` или `Cannot read properties of undefined (reading 'prototype')`
+
+У вас Node.js 18+. Проект требует **v16**:
+```bash
+nvm install 16
+nvm use 16
+rm -rf node_modules frontend/node_modules package-lock.json frontend/package-lock.json
+npm install && cd frontend && npm install && cd ..
+```
+
+### `EADDRINUSE: address already in use :::5000`
+
+На macOS порт 5000 занят AirPlay Receiver. Два варианта:
+1. Используйте порт 5001 (уже настроено в `.env.example`)
+2. Отключите: Системные настройки → Основные → AirDrop и Handoff → выключите AirPlay Receiver
+
+Если порт 5001 тоже занят:
+```bash
+lsof -ti:5001 | xargs kill -9
+```
+
+### MongoDB connection error
+
+Убедитесь что MongoDB запущена:
+```bash
+# Docker
+docker ps                    # проверить статус
+docker start mongo            # запустить контейнер
+
+# Homebrew
+brew services list            # проверить статус
+brew services start mongodb-community
+```
+
+### `npm run dev` не запускается после смены Node версии
+
+Удалите node_modules и переустановите:
+```bash
+rm -rf node_modules frontend/node_modules
+npm install && cd frontend && npm install && cd ..
+```
+
+### PayPal оплата не работает
+
+1. Зарегистрируйтесь на [developer.paypal.com](https://developer.paypal.com)
+2. Dashboard → My Apps & Credentials → **Sandbox** → Create App
+3. Скопируйте Client ID в `.env` (`PAYPAL_CLIENT_ID`)
+4. Перезапустите сервер
+5. Для тестовой оплаты используйте sandbox Personal account (Dashboard → Sandbox → Accounts)
 
 ## License
 
-The MIT License
-
-Copyright (c) 2020 Traversy Media https://traversymedia.com
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+MIT © [Traversy Media](https://traversymedia.com)

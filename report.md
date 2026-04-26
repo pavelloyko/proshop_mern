@@ -3,6 +3,9 @@
 ## Primary IDE
 VS Code + Claude Code (CLI)
 
+## Local Launch Confirmation
+Запустил локально через Docker MongoDB + npm run dev (Node v16, backend :5001, frontend :3000).
+
 ## Rules Diff
 
 Что добавлено вручную поверх auto-generated CLAUDE.md:
