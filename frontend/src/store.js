@@ -53,17 +53,18 @@ const reducer = combineReducers({
   orderList: orderListReducer,
 })
 
-const cartItemsFromStorage = localStorage.getItem('cartItems')
-  ? JSON.parse(localStorage.getItem('cartItems'))
-  : []
+const safeParse = (key, fallback) => {
+  try {
+    const item = localStorage.getItem(key)
+    return item ? JSON.parse(item) : fallback
+  } catch {
+    return fallback
+  }
+}
 
-const userInfoFromStorage = localStorage.getItem('userInfo')
-  ? JSON.parse(localStorage.getItem('userInfo'))
-  : null
-
-const shippingAddressFromStorage = localStorage.getItem('shippingAddress')
-  ? JSON.parse(localStorage.getItem('shippingAddress'))
-  : {}
+const cartItemsFromStorage = safeParse('cartItems', [])
+const userInfoFromStorage = safeParse('userInfo', null)
+const shippingAddressFromStorage = safeParse('shippingAddress', {})
 
 const initialState = {
   cart: {
