@@ -10,10 +10,18 @@ import productRoutes from './routes/productRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 import orderRoutes from './routes/orderRoutes.js'
 import uploadRoutes from './routes/uploadRoutes.js'
+import featureFlagRoutes from './routes/featureFlagRoutes.js'
 
 dotenv.config()
 
-connectDB()
+connectDB().catch((err) => {
+  console.error(
+    `MongoDB connection failed: ${err.message}`.red.bold
+  )
+  console.warn(
+    'Server continuing without DB — feature flags API still available.'.yellow
+  )
+})
 
 const app = express()
 
@@ -27,6 +35,7 @@ app.use('/api/products', productRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/orders', orderRoutes)
 app.use('/api/upload', uploadRoutes)
+app.use('/api/feature-flags', featureFlagRoutes)
 
 app.get('/api/config/paypal', (req, res) =>
   res.send(process.env.PAYPAL_CLIENT_ID)

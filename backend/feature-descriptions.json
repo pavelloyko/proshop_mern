@@ -1,0 +1,152 @@
+{
+  "search_v2": {
+    "name_ru": "Новый алгоритм поиска",
+    "code_status": "⚠️ Сомнительно — getProducts использует только $regex по name. Нужен MongoDB text index или внешний поисковик",
+    "priority": "Skip",
+    "figma_rating": "❌"
+  },
+  "semantic_search": {
+    "name_ru": "Семантический векторный поиск",
+    "code_status": "🚫 Заблокирован зависимостью (search_v2) + нет ML-инфраструктуры",
+    "priority": "Skip",
+    "figma_rating": "❌"
+  },
+  "search_autosuggest": {
+    "name_ru": "Автодополнение в поиске",
+    "code_status": "🟡 С нуля. SearchBox.js без dropdown, эндпоинт /api/products/suggest отсутствует",
+    "priority": "Core",
+    "figma_rating": "⭐⭐"
+  },
+  "cart_redesign": {
+    "name_ru": "Редизайн корзины",
+    "code_status": "🟢 База есть. CartScreen.js готов, переработка над живым кодом",
+    "priority": "Core",
+    "figma_rating": "⭐⭐⭐"
+  },
+  "save_for_later": {
+    "name_ru": "Отложить на потом",
+    "code_status": "🟡 С нуля. userModel не расширен, нет экшена/UI",
+    "priority": "Nice-to-have",
+    "figma_rating": "⭐⭐"
+  },
+  "guest_cart_persistence": {
+    "name_ru": "Корзина гостя между сессиями",
+    "code_status": "🟢 База есть. localStorage уже подключён в store.js",
+    "priority": "Core",
+    "figma_rating": "⭐"
+  },
+  "express_checkout": {
+    "name_ru": "Чекаут в один клик",
+    "code_status": "🟡 С нуля. Есть только последовательный 4-шаговый чекаут",
+    "priority": "Nice-to-have",
+    "figma_rating": "⭐⭐"
+  },
+  "multi_step_checkout_v2": {
+    "name_ru": "Редизайн многошагового чекаута",
+    "code_status": "🟢 База есть. CheckoutSteps.js 4-шаговый уже реализован",
+    "priority": "Must (якорь курса)",
+    "figma_rating": "⭐⭐⭐"
+  },
+  "gift_message": {
+    "name_ru": "Сообщение-подарок на чекауте",
+    "code_status": "🟡 С нуля. Поля giftMessage нет в orderModel.js, нет UI",
+    "priority": "Nice-to-have",
+    "figma_rating": "⭐"
+  },
+  "paypal_express_buttons": {
+    "name_ru": "PayPal Smart Buttons",
+    "code_status": "🟢 База есть. react-paypal-button-v2 подключён в OrderScreen.js",
+    "priority": "Core",
+    "figma_rating": "❌"
+  },
+  "apple_pay": {
+    "name_ru": "Apple Pay / Web Payments API",
+    "code_status": "⚠️ Сомнительно — нет Payment Request API, нужен Apple Developer account + Stripe",
+    "priority": "Skip",
+    "figma_rating": "❌"
+  },
+  "stripe_alternative": {
+    "name_ru": "Stripe как альтернативная оплата",
+    "code_status": "🟡 С нуля. Radio Stripe закомментирован в PaymentScreen.js, бэкенд-SDK отсутствует",
+    "priority": "Skip",
+    "figma_rating": "⭐"
+  },
+  "product_recommendations": {
+    "name_ru": "Рекомендации товаров",
+    "code_status": "🟡 С нуля. Секции/модели нет; getTopProducts для fallback уже есть",
+    "priority": "Core",
+    "figma_rating": "⭐⭐"
+  },
+  "recently_viewed": {
+    "name_ru": "Недавно просмотренные",
+    "code_status": "🟡 С нуля. Рассинхрон! Флаг Enabled, но кода нет",
+    "priority": "Nice-to-have",
+    "figma_rating": "⭐"
+  },
+  "infinite_scroll": {
+    "name_ru": "Бесконечный скролл каталога",
+    "code_status": "🟡 С нуля. Сейчас используется Paginate.js, IntersectionObserver отсутствует",
+    "priority": "Nice-to-have",
+    "figma_rating": "⭐"
+  },
+  "admin_dashboard_v2": {
+    "name_ru": "Редизайн админки",
+    "code_status": "🟢 База есть. OrderListScreen.js, ProductListScreen.js — таблицы, готовы к замене",
+    "priority": "Core",
+    "figma_rating": "⭐⭐⭐"
+  },
+  "admin_bulk_actions": {
+    "name_ru": "Массовые операции в админке",
+    "code_status": "🟡 С нуля. Нет роута и чекбоксов",
+    "priority": "Nice-to-have",
+    "figma_rating": "⭐"
+  },
+  "admin_advanced_filters": {
+    "name_ru": "Продвинутые фильтры в админке",
+    "code_status": "🟡 С нуля. Рассинхрон! Флаг 100%, фильтров нет",
+    "priority": "Nice-to-have",
+    "figma_rating": "⭐"
+  },
+  "reviews_moderation": {
+    "name_ru": "Модерация отзывов",
+    "code_status": "🟡 С нуля. reviewSchema без поля status, очереди нет",
+    "priority": "Nice-to-have",
+    "figma_rating": "⭐⭐"
+  },
+  "photo_reviews": {
+    "name_ru": "Фото в отзывах",
+    "code_status": "🚫 Заблокирован зависимостью (reviews_moderation) + с нуля",
+    "priority": "Nice-to-have",
+    "figma_rating": "⭐⭐"
+  },
+  "verified_purchase_badge": {
+    "name_ru": "Бейдж «Verified Purchase»",
+    "code_status": "🟡 С нуля. Рассинхрон! Флаг Enabled, логики нет",
+    "priority": "Nice-to-have",
+    "figma_rating": "⭐"
+  },
+  "image_lazy_loading": {
+    "name_ru": "Lazy-loading картинок",
+    "code_status": "🟡 С нуля. Рассинхрон! Флаг Enabled, в Product.js обычный <img> без loading=lazy",
+    "priority": "Nice-to-have",
+    "figma_rating": "❌"
+  },
+  "code_splitting_optimisation": {
+    "name_ru": "Code splitting по роутам",
+    "code_status": "🟡 С нуля. App.js импортирует все экраны напрямую",
+    "priority": "Nice-to-have",
+    "figma_rating": "❌"
+  },
+  "dark_mode": {
+    "name_ru": "Тёмная тема",
+    "code_status": "🟡 С нуля. Header.js использует bg='dark', но toggle/темизации нет",
+    "priority": "Core",
+    "figma_rating": "⭐⭐⭐"
+  },
+  "guest_checkout": {
+    "name_ru": "Гостевой чекаут без регистрации",
+    "code_status": "🟡 С нуля. orderModel требует user: ref, гостевой flow не поддерживается",
+    "priority": "Nice-to-have",
+    "figma_rating": "⭐"
+  }
+}

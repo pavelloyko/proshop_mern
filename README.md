@@ -26,6 +26,7 @@ proshop_mern/
 │   ├── models/               # Mongoose schemas (Product, User, Order)
 │   ├── routes/               # Express routers (per resource)
 │   ├── utils/                # generateToken (JWT helper)
+│   ├── features.json          # Live feature flags (edited by MCP server)
 │   ├── seeder.js             # DB seed script (import/destroy)
 │   └── server.js             # Entry point
 ├── frontend/
@@ -177,6 +178,32 @@ npm install && cd frontend && npm install && cd ..
 3. Скопируйте Client ID в `.env` (`PAYPAL_CLIENT_ID`)
 4. Перезапустите сервер
 5. Для тестовой оплаты используйте sandbox Personal account (Dashboard → Sandbox → Accounts)
+
+## Feature Flags API
+
+Сервер читает `backend/features.json` на **каждый запрос** (без кеширования), поэтому изменения файла видны сразу — без рестарта.
+
+### Эндпоинты
+
+| Метод | URL | Описание |
+|---|---|---|
+| `GET` | `/api/feature-flags` | Все фича-флаги |
+| `GET` | `/api/feature-flags/:name` | Один флаг по ключу (например `search_v2`) |
+
+### Проверка
+
+```bash
+# Запустить сервер
+npm run dev
+
+# Все флаги
+curl http://localhost:5001/api/feature-flags
+
+# Один флаг
+curl http://localhost:5001/api/feature-flags/search_v2
+```
+
+Или откройте http://localhost:5001/api/feature-flags в браузере — должен вернуться JSON со списком всех фичей из `backend/features.json`.
 
 ## License
 
