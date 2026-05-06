@@ -41,6 +41,7 @@ proshop_mern/
 │       ├── store.js          # Redux store (combineReducers + localStorage)
 │       └── bootstrap.min.css # Vendored Bootstrap (do not edit)
 ├── uploads/                  # User-uploaded product images (multer)
+├── docs/project-data/        # Documentation corpus for RAG (M3)
 ├── .env.example              # Environment variables template
 ├── CLAUDE.md                 # AI assistant rules file
 └── package.json              # Backend deps + concurrently/nodemon
