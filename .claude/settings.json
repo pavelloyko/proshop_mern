@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "proshop-feature-flags": {
+      "command": "python3",
+      "args": ["mcp-feature-flags/server.py"]
+    }
+  }
+}
