@@ -142,7 +142,9 @@ def _point_to_chunk(point) -> dict:
 # ---------------------------------------------------------------------------
 
 @mcp.tool()
-def search_project_docs(query: str, top_k: int = 5) -> dict:
+def search_project_docs(
+    query: str, top_k: int = 5, chunk_type: str | None = None
+) -> dict:
     """Search the proshop_mern project documentation using semantic
     vector search (BGE-M3 embeddings, Qdrant cosine similarity).
 
@@ -173,12 +175,16 @@ def search_project_docs(query: str, top_k: int = 5) -> dict:
          → returns ADR-001 chunks with Context, Decision, Consequences.
       2. search_project_docs(query="какие фичи зависят от stripe", top_k=3)
          → returns payment-related chunks from feature-flags-spec and ADR-004.
-      3. search_project_docs(query="checkout incident timeline")
+      3. search_project_docs(query="checkout incident timeline",
+         chunk_type="incident")
          → returns i-001-paypal-double-charge chunks (Timeline, Root Cause).
 
     Args:
         query: Natural-language search query (Russian or English).
         top_k: Number of chunks to return (1-20, default 5).
+        chunk_type: Optional pre-filter by chunk type. One of: adr, api,
+            doc, feature, incident, page, runbook. Limits search to chunks
+            of that type only. Omit to search all types.
 
     Returns:
         Dict with 'total' (int) and 'chunks' (list of chunk objects).
@@ -189,6 +195,12 @@ def search_project_docs(query: str, top_k: int = 5) -> dict:
 
     model = _get_model()
     client = _get_client()
+
+    qdrant_filter = None
+    if chunk_type:
+        qdrant_filter = Filter(
+            must=[FieldCondition(key="type", match=MatchValue(value=chunk_type))]
+        )
 
     queries = [query]
     if _has_cyrillic(query):
@@ -205,6 +217,7 @@ def search_project_docs(query: str, top_k: int = 5) -> dict:
             collection_name=COLLECTION_NAME,
             query=vec.tolist(),
             limit=fetch_limit,
+            query_filter=qdrant_filter,
             with_payload=True,
         )
         all_results.append(results.points)

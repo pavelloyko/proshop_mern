@@ -147,3 +147,93 @@ FILTER:   type=incident
 Сложнее всего оказалась чанкинг-стратегия: разбиение по H2/H3-заголовкам давало чанки разного размера (от 50 до 1500 токенов), что влияло на качество эмбеддингов. Пришлось добавить порог слияния мелких секций и задать целевой размер ~600 токенов. Вторая проблема — кросс-язычный bridge: словарь ~80 RU→EN пар покрывает основные термины, но не справляется со сложными конструкциями ("во время последнего incident" → "during time last incident" вместо "during the latest incident"). Эмбеддинговая модель частично компенсирует это за счёт мультиязычности BGE-M3, но идеальным решением был бы LLM-перевод запроса.
 
 Если бы начинали заново, добавили бы **гибридный поиск** (BM25 sparse + dense cosine) — точное совпадение терминов помогло бы в запросах типа Q1, где ADR-001 содержит искомые слова, но проигрывает по семантической близости общим обзорным чанкам. Также имеет смысл добавить **re-ranker** (например, cross-encoder) на финальном этапе — он оценивает релевантность query+chunk парно, а не через косайн-расстояние, и лучше понимает "почему именно она?" как запрос на обоснование решения.
+
+### Search-docs MCP (Часть 4)
+
+MCP-сервер `proshop-rag-search` (FastMCP, tool `search_project_docs(query, top_k)`) обёртывает query.py. Ниже — лог 3 запросов, проведённых через MCP tool, с анализом чанков и формулировкой итогового ответа.
+
+#### Q1: "Какая БД используется в proshop_mern и почему именно она?"
+
+**Вызов:** `search_project_docs(query="Какая БД используется в proshop_mern и почему именно она?", top_k=3)`
+
+**MCP вернул (top-3):**
+
+| # | score | rrf_score | type | source_file | snippet |
+|---|-------|-----------|------|-------------|---------|
+| 1 | 0.6622 | 0.03252 | doc | architecture.md | "Deprecation notice. The upstream project is explicitly marked as deprecated in favour of proshop-v2. This document describes the v1 codebase as-is..." |
+| 2 | 0.6569 | 0.03252 | doc | best-practices.md | "Practical engineering guidance for building production-grade e-commerce systems on the MERN stack. Written for the proshop_mern study project — a deliberately dirty 2020-era codebase..." |
+| 3 | 0.6349 | 0.03175 | doc | feature-flags-spec.md | "The ProShop MERN codebase is a teaching project: a full-stack e-commerce application built with MongoDB, Express, React, and Node.js..." |
+
+**Анализ:** Все три чанка — общие обзорные документы. Ни один не содержит обоснования выбора БД. Чанк #3 упоминает MongoDB, что подтверждает факт, но не отвечает на "почему". Выполняю fallback — по source_file из чанков и знанию структуры корпуса читаю полный ADR-001.
+
+**Ответ на основе ADR-001 (adrs/adr-001-mongodb-vs-postgres.md):**
+
+В proshop_mern используется **MongoDB** через Mongoose ODM. Решение принято 2023-01-10 (ADR-001). Причины:
+1. **Schema flexibility** — ожидались variable attributes у продуктов (электроника: wattage, clothing: размер), что естественно для document store.
+2. **Embedded documents** — Order embeds order items, полный заказ читается одним document fetch без JOIN.
+3. **Mongoose ODM** — beginner-friendly API, maps naturally к Express controller patterns.
+4. **Atlas free tier** — M0 cluster достаточен для dev/staging, zero cost первые 6 месяцев.
+5. **Learning goal** — команда хотела получить опыт MongoDB (у обоих был SQL-опыт).
+
+Альтернатива — PostgreSQL + JSONB — могла бы справиться не хуже. В ретроспективе (ADR-001 Current Assessment) схема продуктов стабилизировалась за 2 месяца, и variable attributes так и не стали реальной проблемой.
+
+---
+
+#### Q2: "Какие фичи зависят от payment_stripe_v3?"
+
+**Вызов:** `search_project_docs(query="Какие фичи зависят от payment_stripe_v3?", top_k=3)`
+
+**MCP вернул (top-3):**
+
+| # | score | rrf_score | type | source_file | snippet |
+|---|-------|-----------|------|-------------|---------|
+| 1 | 0.6680 | 0.03279 | adr | adrs/adr-004-paypal-vs-stripe.md | "Stripe is now the team's preferred payment processor for new projects. Key advantages over PayPal: Test mode is a faithful replica of production..." |
+| 2 | 0.6585 | 0.03226 | adr | adrs/adr-004-paypal-vs-stripe.md | "Migration Path: 1. Install stripe (backend) and @stripe/react-stripe-js (frontend). 2. Create a Stripe Payment Intent on order creation..." |
+| 3 | 0.6158 | 0.03150 | doc | feature-flags-spec.md | "Payments — paypal_express_buttons: PayPal Express Checkout Buttons, Default state: Enabled (100%)..." |
+
+**Анализ:** Чанки #1 и #2 — из ADR-004 (разделы про Stripe vs PayPal и Migration Path). Чанк #3 — каталог payment-флагов из feature-flags-spec. Ни один чанк не содержит прямого графа зависимостей от `payment_stripe_v3`. Выполняю fallback — дополняю данными из feature-flags MCP.
+
+**Дополнительно:** вызван `list_features()` из proshop-feature-flags MCP. Найдены payment-фичи: `paypal_express_buttons` (Enabled, 100%), `stripe_alternative` (Testing, 5%), `express_checkout` (Disabled), `apple_pay` (Disabled), `gift_message` (Disabled), `multi_step_checkout_v2` (Testing, 20%).
+
+**Ответ:**
+
+В корпусе нет явного графа зависимостей для `payment_stripe_v3` (этого флаг-идентификатора не существует — есть `stripe_alternative`). По ADR-004 и feature-flags-spec:
+
+- **`stripe_alternative`** (Testing, 5%) — Stripe как альтернативный payment processor. Migration path описан в ADR-004: заменить PayPal JS SDK на Stripe Elements + webhook handler.
+- **Фичи, которые затронет миграция на Stripe:** `paypal_express_buttons` (будет заменён), `express_checkout` (depends on payment processor), `multi_step_checkout_v2` (payment step).
+- ADR-004 рекомендует Stripe для новых проектов, но PayPal остаётся основным processor в текущем deployment.
+
+---
+
+#### Q3: "Что случилось во время последнего incident с checkout?"
+
+**Вызов:** `search_project_docs(query="Что случилось во время последнего incident с checkout?", top_k=3)`
+
+**MCP вернул (top-3):**
+
+| # | score | rrf_score | type | source_file | snippet |
+|---|-------|-----------|------|-------------|---------|
+| 1 | 0.6276 | 0.03279 | runbook | runbooks/incident-response.md | "Phase 6: Communication — Timeline: T+0 IC: Incident declared. Investigating. T+5 IC: Issue..." |
+| 2 | 0.6013 | 0.03226 | runbook | runbooks/incident-response.md | "Phase 7: Post-Incident — Postmortem template: Incident Postmortem: PayPal Payment Processor Outage, Date: 2024-04-15..." |
+| 3 | 0.5974 | 0.03175 | doc | feature-flags-spec.md | "express_checkout — Express One-Click Checkout, Default state: Disabled..." |
+
+**Анализ:** MCP вернул runbook по incident response вместо самого инцидента. Это ограничение текущего MCP tool — нет параметра `type` для pre-filtering (query.py поддерживает `--type incident`, но MCP не экспортирует этот параметр). Выполняю fallback — по знанию структуры корпуса читаю `incidents/i-001-paypal-double-charge.md`.
+
+**Ответ на основе i-001-paypal-double-charge.md:**
+
+**Инцидент i-001: PayPal Sandbox Double-Charge** (P1, resolved, 2023-11-04 — 2023-11-06).
+
+**Что случилось:** PayPal sandbox при определённых network conditions дважды вызывал `onApprove` callback. Backend не проверял, что заказ уже оплачен — каждый вызов помечал заказ как paid и декрементировал `countInStock`. Результат: 7 заказов с duplicate `paymentResult`, 3 товара с отрицательным остатком (один — `-1`).
+
+**Timeline:**
+- `2023-11-03 21:14` — PayPal sandbox получает payment
+- `21:14:02` — первый `onApprove` → order paid, stock decremented
+- `21:14:04` — второй `onApprove` → order updated again, stock decremented again
+- `2023-11-04 09:30` — QA замечает `countInStock = -1` в admin panel
+- `11:00` — root cause: no idempotency check on `PUT /api/orders/:id/pay`
+- `14:00` — fix deployed to staging
+- `2023-11-05 10:00` — fix deployed to production
+
+**Fix:** Добавлен idempotency guard (`if (order.isPaid) return 200`) и проверка `isModified('isPaid')` в stock decrement middleware.
+
+**Урок:** PayPal sandbox не faithful replica production. Это стало главной причиной, почему команда предпочитает Stripe для новых проектов (ADR-004).
