@@ -7,6 +7,14 @@
         "mcp-feature-flags/server.py"
       ],
       "env": {}
+    },
+    "proshop-rag-search": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "mcp-rag-search/server.py"
+      ],
+      "env": {}
     }
   }
 }
