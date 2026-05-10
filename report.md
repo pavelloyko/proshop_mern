@@ -237,3 +237,90 @@ MCP-сервер `proshop-rag-search` (FastMCP, tool `search_project_docs(query,
 **Fix:** Добавлен idempotency guard (`if (order.isPaid) return 200`) и проверка `isModified('isPaid')` в stock decrement middleware.
 
 **Урок:** PayPal sandbox не faithful replica production. Это стало главной причиной, почему команда предпочитает Stripe для новых проектов (ADR-004).
+
+### End-to-end: search-docs + feature-flags MCP (Часть 5)
+
+**Сценарий:** Найти в документации `payment_stripe_v3`, проверить статус через feature-flags MCP, если Disabled — перевести в Testing 25%, процитировать документацию.
+
+#### Шаг 1 — Поиск в документации (search-docs MCP)
+
+`search_project_docs(query="payment_stripe_v3 dependencies", top_k=3)`
+
+MCP вернул чанки из `feature-flags-spec.md` и `adrs/adr-004-paypal-vs-stripe.md`. В документации идентификатор `payment_stripe_v3` **не встречается** — реальный feature ID: **`stripe_alternative`** ("Stripe as Alternative Payment Processor").
+
+Из `feature-flags-spec.md` — описание фичи:
+
+> The `PaymentScreen` currently has a Stripe radio button that is commented out. This flag enables the Stripe payment path: the user selects Stripe, enters card details in a Stripe Elements form, and payment is confirmed via a backend webhook. Acts as a redundant payment path when PayPal is unavailable.
+>
+> **System impact:** `PaymentScreen.js` (uncomment + wrap in flag check), new backend route `POST /api/orders/stripe-pay`, Stripe webhook handler.
+>
+> **Kill Switch.** An external payment provider has a service outage. You disable `stripe_alternative` in seconds, routing all traffic back to PayPal. No code changes, no redeployment.
+
+Зависимости (по docs): `apple_pay` зависит **от** `stripe_alternative` (обратная зависимость — `apple_pay` требует Stripe active).
+
+#### Шаг 2 — Проверка статуса (feature-flags MCP)
+
+```
+get_feature_info("payment_stripe_v3")
+→ {"error": "FEATURE_NOT_FOUND", "message": "No feature with ID 'payment_stripe_v3' exists in features.json."}
+
+get_feature_info("stripe_alternative")
+→ {
+    "feature_id": "stripe_alternative",
+    "name": "Stripe as Alternative Payment Processor",
+    "status": "Testing",
+    "traffic_percentage": 5,
+    "last_modified": "2026-04-05",
+    "targeted_segments": ["beta_users"],
+    "rollout_strategy": "canary"
+  }
+```
+
+Фича уже в **Testing** (5%), не Disabled. Условие "если Disabled" не выполняется, но задача — установить трафик 25%.
+
+Дополнительно проверены связанные фичи:
+- `paypal_express_buttons` — **Enabled, 100%** (основной payment processor)
+- `apple_pay` — **Disabled, 0%** (зависит от `stripe_alternative`)
+
+#### Шаг 3 — Установка трафика 25%
+
+```
+adjust_traffic_rollout(feature_name="stripe_alternative", percentage=25)
+→ {
+    "feature_id": "stripe_alternative",
+    "name": "Stripe as Alternative Payment Processor",
+    "status": "Testing",
+    "traffic_percentage": 25,
+    "last_modified": "2026-05-10",
+    "hint": null
+  }
+```
+
+#### Шаг 4 — Финальное подтверждение
+
+```
+get_feature_info("stripe_alternative")
+→ {
+    "feature_id": "stripe_alternative",
+    "name": "Stripe as Alternative Payment Processor",
+    "status": "Testing",
+    "traffic_percentage": 25,
+    "last_modified": "2026-05-10",
+    "targeted_segments": ["beta_users"],
+    "rollout_strategy": "canary"
+  }
+```
+
+#### Цитата из документации (зачем нужна фича)
+
+Из `feature-flags-spec.md`, секция `stripe_alternative`:
+
+> Enables the Stripe payment method option that is currently commented out in PaymentScreen.js. Adds a Stripe checkout backend route to orderController and handles webhooks for async payment confirmation. **Acts as a fallback when PayPal is unavailable** and provides credit card tokenization independent of PayPal.
+
+Из `adrs/adr-004-paypal-vs-stripe.md`, раздел "Why Stripe":
+
+> Stripe test mode uses the same code paths as production. Test card numbers produce predictable, reproducible behavior. **The double-callback incident (i-001) would have been surfaced and verifiable in Stripe's test environment.**
+
+**Итоговое состояние:** `stripe_alternative` → status=Testing, traffic=25%, rollout=canary, segments=beta_users, last_modified=2026-05-10.
+
+**Примечание:** Идентификатор `payment_stripe_v3` из задания не существует в features.json и не упоминается в документации. Реальный feature ID — `stripe_alternative`. Это расхождение может указывать на устаревший идентификатор из ранней версии спецификации или на planned feature, которая была переименована.
