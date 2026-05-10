@@ -135,8 +135,8 @@
     "name": "Stripe as Alternative Payment Processor",
     "description": "Enables the Stripe payment method option that is currently commented out in PaymentScreen.js. Adds a Stripe checkout backend route to orderController and handles webhooks for async payment confirmation. Acts as a fallback when PayPal is unavailable and provides credit card tokenization independent of PayPal.",
     "status": "Testing",
-    "traffic_percentage": 5,
-    "last_modified": "2026-04-05",
+    "traffic_percentage": 25,
+    "last_modified": "2026-05-10",
     "targeted_segments": [
       "beta_users"
     ],

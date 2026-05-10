@@ -127,6 +127,19 @@ No test suite is configured. No linter config exists beyond the default `react-a
 - `heroku-postbuild` builds frontend automatically. For other hosts: `cd frontend && npm run build`, then set `NODE_ENV=production`
 - Production needs MongoDB Atlas (not local Docker) — set `MONGO_URI` to Atlas connection string
 
+## Поиск по документации продукта proshop_mern (search-docs MCP)
+
+- При любых вопросах про функционал, фичи, архитектуру, ADR, runbooks, incidents — СНАЧАЛА использовать `search_project_docs` MCP tool.
+- Это быстрее и возвращает релевантные чанки с метаданными (source_file, title, score, snippet).
+- ТОЛЬКО если vector search не дал нужных результатов или нужно полное содержимое файла из метаданных найденного чанка → fallback на grep+read.
+- НЕ начинать с grep+read по проекту — медленно и дорого по токенам.
+
+## Управление feature flags (feature-flags MCP)
+
+- Когда пользователь спрашивает статус фичи ("какой статус у gift_message?", "включена ли search_v2?") — вызывать feature-flags MCP `get_feature_info`, не читать `features.json` напрямую.
+- Когда пользователь хочет изменить статус ("включи фичу X", "переведи Y в Testing", "поставь трафик 25%") — вызывать соответствующие tools (`set_feature_state`, `adjust_traffic_rollout`). Никогда не редактировать `backend/features.json` вручную через Edit/Write.
+- Когда пользователь просит список всех фич — использовать `list_features` tool, не grep'ать файл.
+
 ### AI Collaboration Preferences
 - Explanations in Russian, code and comments in English
 - Do not refactor beyond task scope — this is a legacy learning project
