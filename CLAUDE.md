@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Design rules: see ./DESIGN.md
+
+When generating any UI component or modifying styles:
+1. Read DESIGN.md before writing code
+2. Use only colors defined as CSS variables — never raw hex
+3. Follow spacing scale (multiples of 8px only)
+4. Implement all interactive states: hover, focus, loading, empty
+5. Font: Manrope (not Inter)
+
 ## Overview
 
 ProShop is a full-stack eCommerce platform (MERN: MongoDB, Express, React, Node.js) with Redux state management. It supports product browsing with search/pagination, shopping cart, user auth (JWT), order management, admin CRUD for products/users/orders, product reviews, and PayPal payment integration.

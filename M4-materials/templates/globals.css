@@ -1,0 +1,197 @@
+/* globals.css — CSS variables matching DESIGN_SYSTEM-minimal-tech.md
+ *
+ * Section mapping:
+ *   §1 Color Palette   → :root and .dark variable blocks
+ *   §2 Typography      → @import + --font-sans, --font-mono
+ *   §3 Spacing Scale   → --space-* tokens
+ *   §4 Border Radius   → --radius-* tokens
+ *   §5 Elevation       → --shadow-* tokens
+ *   §8 Animation       → @media prefers-reduced-motion
+ */
+
+/* ─── §2 Typography imports ──────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ─── Tailwind 4 directives ──────────────────────────────────────────────── */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── §1 Color Palette — light mode ─────────────────────────────────────── */
+
+@layer base {
+  :root {
+    /* Backgrounds */
+    --color-background:   248 250 252;   /* #f8fafc — light page bg */
+    --color-foreground:   15 23 42;      /* #0f172a — primary text */
+
+    /* Surfaces */
+    --color-card:         255 255 255;   /* #ffffff */
+    --color-card-alt:     241 245 249;   /* #f1f5f9 — elevated card */
+
+    /* Brand */
+    --color-primary:      99 102 241;    /* #6366f1 — indigo */
+    --color-primary-fg:   255 255 255;   /* white on primary bg */
+
+    /* Semantic */
+    --color-muted:        148 163 184;   /* #94a3b8 */
+    --color-accent:       34 211 238;    /* #22d3ee — cyan */
+    --color-destructive:  239 68 68;     /* #ef4444 */
+
+    /* Structure */
+    --color-border:       226 232 240;   /* #e2e8f0 */
+    --color-ring:         99 102 241;    /* #6366f1 — focus ring = primary */
+  }
+
+  /* ─── §1 Color Palette — dark mode ──────────────────────────────────── */
+
+  .dark {
+    /* Backgrounds */
+    --color-background:   15 23 42;      /* #0f172a — dark slate */
+    --color-foreground:   241 245 249;   /* #f1f5f9 */
+
+    /* Surfaces — 3-level elevation via bg contrast (§5) */
+    --color-card:         30 41 59;      /* #1e293b — level 1 */
+    --color-card-alt:     38 51 72;      /* #263348 — level 2 */
+
+    /* Brand — lighter in dark mode for contrast */
+    --color-primary:      129 140 248;   /* #818cf8 — indigo 400 */
+    --color-primary-fg:   255 255 255;
+
+    /* Semantic */
+    --color-muted:        100 116 139;   /* #64748b */
+    --color-accent:       34 211 238;    /* #22d3ee — same in both modes */
+    --color-destructive:  248 113 113;   /* #f87171 */
+
+    /* Structure */
+    --color-border:       30 41 59;      /* #1e293b — same as card for minimal borders */
+    --color-ring:         129 140 248;   /* #818cf8 */
+  }
+
+  /* ─── §2 Typography — font tokens ───────────────────────────────────── */
+
+  :root {
+    --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  /* ─── §3 Spacing Scale — 8px base unit ──────────────────────────────── */
+
+  :root {
+    --space-micro: 4px;    /* icon + label gap */
+    --space-xs:    8px;    /* tight padding */
+    --space-sm:    16px;   /* component inner padding */
+    --space-md:    24px;   /* card padding */
+    --space-lg:    32px;   /* section padding */
+    --space-xl:    48px;   /* between major sections */
+    --space-2xl:   64px;   /* page-level spacing */
+    --space-3xl:   96px;   /* hero sections */
+  }
+
+  /* ─── §4 Border Radius Scale ─────────────────────────────────────────── */
+
+  :root {
+    --radius-none: 0px;
+    --radius-sm:   4px;     /* badges, chips, code blocks */
+    --radius-md:   8px;     /* buttons, inputs (default) */
+    --radius-lg:   12px;    /* cards (default) */
+    --radius-xl:   16px;    /* modals, popovers */
+    --radius-full: 9999px;  /* pills, avatars, toggles */
+  }
+
+  /* ─── §5 Elevation — exception shadows (dark-bg adjusted) ───────────── */
+
+  :root {
+    /* Only used for dropdowns, tooltips, context menus.
+       Default elevation = background contrast (no shadows). */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.25);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.35), 0 2px 4px -1px rgba(0,0,0,0.25);
+  }
+
+  /* ─── Base styles ────────────────────────────────────────────────────── */
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  code,
+  pre,
+  kbd,
+  samp {
+    font-family: var(--font-mono);
+  }
+
+  /* Focus ring — visible on dark background (§9 Accessibility) */
+  :focus-visible {
+    outline: 2px solid rgb(var(--color-ring));
+    outline-offset: 2px;
+  }
+
+  /* Skip-to-content (§9 Accessibility) */
+  .skip-to-content {
+    position: absolute;
+    transform: translateY(-100%);
+    top: 0;
+    left: 0;
+    padding: var(--space-sm) var(--space-md);
+    background: rgb(var(--color-primary));
+    color: rgb(var(--color-primary-fg));
+    font-family: var(--font-sans);
+    font-weight: 600;
+    z-index: 9999;
+    transition: transform 200ms ease;
+  }
+
+  .skip-to-content:focus {
+    transform: translateY(0);
+  }
+
+  /* ─── §8 Animation — reduced motion override ─────────────────────────── */
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ─── Tailwind color alias — maps --color-* to @apply-able names ──────── */
+/* Used by shadcn/ui components via @apply bg-background, text-foreground, etc. */
+
+@layer base {
+  :root {
+    --background:         var(--color-background);
+    --foreground:         var(--color-foreground);
+    --card:               var(--color-card);
+    --card-foreground:    var(--color-foreground);
+    --popover:            var(--color-card);
+    --popover-foreground: var(--color-foreground);
+    --primary:            var(--color-primary);
+    --primary-foreground: var(--color-primary-fg);
+    --secondary:          var(--color-card);
+    --secondary-foreground: var(--color-foreground);
+    --muted:              var(--color-card);
+    --muted-foreground:   var(--color-muted);
+    --accent:             var(--color-accent);
+    --accent-foreground:  var(--color-foreground);
+    --destructive:        var(--color-destructive);
+    --destructive-foreground: 255 255 255;
+    --border:             var(--color-border);
+    --input:              var(--color-border);
+    --ring:               var(--color-ring);
+    --radius:             var(--radius-lg);  /* default shadcn radius = card radius */
+  }
+}
