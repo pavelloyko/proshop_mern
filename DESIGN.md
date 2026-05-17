@@ -15,18 +15,18 @@ Semantic roles — use CSS variable names in code, never raw hex.
 | Role               | Dark mode (default) | Light mode          | Hex (dark)   |
 |---------------------|---------------------|---------------------|--------------|
 | `--bg`              | Page background     | Page background     | `#0f172a`    |
-| `--fg`              | Primary text        | Primary text        | `#f1f5f9`    |
+| `--fg`              | Primary text        | Primary text        | `#f8fafc`    |
 | `--card`            | Card surface        | Card surface        | `#1e293b`    |
 | `--card-alt`        | Elevated card       | Elevated card       | `#263348`    |
-| `--primary`         | Primary action      | Primary action      | `#6366f1`    |
+| `--primary`         | Primary action      | Primary action      | `#818cf8`    |
 | `--primary-fg`      | Text on primary bg  | Text on primary bg  | `#ffffff`    |
-| `--muted`           | Muted text, hints   | Muted text, hints   | `#64748b`    |
+| `--muted`           | Muted text, hints   | Muted text, hints   | `#94a3b8`    |
 | `--accent`          | Cyan highlight      | Cyan highlight      | `#22d3ee`    |
-| `--destructive`     | Error, danger       | Error, danger       | `#f87171`    |
-| `--success`         | Enabled / OK        | Enabled / OK        | `#34d399`    |
-| `--warning`         | Testing / caution   | Testing / caution   | `#fbbf24`    |
-| `--border`          | Borders, dividers   | Borders, dividers   | `#1e293b`    |
-| `--ring`            | Focus ring          | Focus ring          | `#818cf8`    |
+| `--destructive`     | Error, danger       | Error, danger       | `#fca5a5`    |
+| `--success`         | Enabled / OK        | Enabled / OK        | `#6ee7b7`    |
+| `--warning`         | Testing / caution   | Testing / caution   | `#fcd34d`    |
+| `--border`          | Borders, dividers   | Borders, dividers   | `#334155`    |
+| `--ring`            | Focus ring          | Focus ring          | `#a5b4fc`    |
 
 Light mode variant:
 - `--bg`: `#f8fafc` / `--fg`: `#0f172a` / `--card`: `#ffffff`

@@ -35,18 +35,18 @@
 
 :root {
   --bg:            #0f172a;
-  --fg:            #f1f5f9;
+  --fg:            #f8fafc;
   --card:          #1e293b;
   --card-alt:      #263348;
-  --primary:       #6366f1;
+  --primary:       #818cf8;
   --primary-fg:    #ffffff;
-  --muted:         #64748b;
+  --muted:         #94a3b8;
   --accent:        #22d3ee;
-  --destructive:   #f87171;
-  --success:       #34d399;
-  --warning:       #fbbf24;
-  --border:        #1e293b;
-  --ring:          #818cf8;
+  --destructive:   #fca5a5;
+  --success:       #6ee7b7;
+  --warning:       #fcd34d;
+  --border:        #334155;
+  --ring:          #a5b4fc;
   --radius-sm:     4px;
   --radius-md:     8px;
   --radius-lg:     12px;
