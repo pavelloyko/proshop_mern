@@ -73,6 +73,33 @@ body {
   font-family: var(--font);
 }
 
+/* ─── Kill Bootstrap's hardcoded dark text ─── */
+body, p, span, li, td, th, label, small, strong, em,
+h1, h2, h3, h4, h5, h6,
+.card-body, .card-title, .card-text,
+.list-group-item,
+.form-label, .form-text,
+.table, .table td, .table th,
+.dropdown-item, .dropdown-header,
+.alert, .alert-heading,
+.col, .row,
+.navbar-text,
+.text-dark, .text-body, .text-secondary,
+.btn-light, .btn-outline-light,
+.badge-secondary {
+  color: var(--fg) !important;
+}
+
+/* Keep semantic colored text */
+.text-success, .badge-success { color: var(--success) !important; }
+.text-danger, .badge-danger { color: var(--destructive) !important; }
+.text-warning, .badge-warning { color: var(--warning) !important; }
+.text-info { color: var(--accent) !important; }
+.text-primary, .badge-primary { color: var(--primary) !important; }
+.text-muted { color: var(--muted) !important; }
+.text-white { color: var(--primary-fg) !important; }
+a { color: var(--primary); }
+
 main {
   min-height: 80vh;
 }
