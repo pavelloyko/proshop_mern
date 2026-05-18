@@ -247,6 +247,22 @@ code {
   border-radius: var(--radius-lg);
   color: var(--fg);
 }
+.card-body {
+  color: var(--fg);
+}
+.card-title {
+  color: var(--fg);
+}
+.card-text {
+  color: var(--fg);
+}
+.card-img-top {
+  border-radius: var(--radius-lg);
+}
+.card-text h3,
+.card h3 {
+  color: var(--fg);
+}
 
 .btn-primary {
   background: var(--primary);
@@ -910,11 +926,19 @@ textarea.form-control {
 }
 
 /* ─── Rating stars ─── */
-.rating span {
-  margin: 0.1rem;
-}
 .rating {
-  color: var(--warning);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.rating__star {
+  color: var(--accent);
+  font-size: 14px;
+}
+.rating__text {
+  color: var(--muted);
+  font-size: 14px;
+  margin-left: 4px;
 }
 
 /* ─── Carousel ─── */
