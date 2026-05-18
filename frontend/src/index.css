@@ -932,7 +932,7 @@ textarea.form-control {
   gap: 2px;
 }
 .rating__star {
-  color: var(--accent);
+  color: var(--primary);
   font-size: 14px;
 }
 .rating__text {
