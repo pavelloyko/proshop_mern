@@ -102,6 +102,7 @@ const FeatureRow = ({ id, flag, onToggle, onTrafficChange, flashId }) => {
             max="100"
             value={flag.traffic_percentage}
             onChange={(e) => onTrafficChange(id, Number(e.target.value))}
+            style={{ backgroundSize: `${flag.traffic_percentage}% 100%` }}
             aria-label={`Traffic percentage for ${flag.name}`}
             aria-valuenow={flag.traffic_percentage}
             aria-valuemin="0"
