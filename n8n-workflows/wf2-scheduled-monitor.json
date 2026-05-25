@@ -1,0 +1,270 @@
+{
+  "name": "WF2 — Scheduled Defensive Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "cron_1",
+      "name": "Every 1 Minute",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:5150/api/logs",
+        "options": {}
+      },
+      "id": "http_logs_2",
+      "name": "Get Logs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [250, 0]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:5150/api/features/search_v2",
+        "options": {}
+      },
+      "id": "http_feature_3",
+      "name": "Get Feature State",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate error rate from recent logs for the monitored feature\nconst logs = $input.first().json.logs || [];\nconst featureState = $('Get Feature State').first().json;\nconst THRESHOLD = 0.15;\nconst WINDOW_SIZE = 20;\nconst FEATURE_NAME = 'search_v2';\n\n// Filter logs for our feature, take last N events\nconst featureLogs = logs\n  .filter(e => e.feature === FEATURE_NAME)\n  .slice(-WINDOW_SIZE);\n\nconst total = featureLogs.length;\nconst errors = featureLogs.filter(e => e.status === 'error').length;\nconst errorRate = total > 0 ? errors / total : 0;\n\nconst currentStatus = featureState.status || 'Unknown';\n\n// Decision logic\nlet action = 'none';\nif (total >= 5 && errorRate > THRESHOLD && currentStatus !== 'Disabled') {\n  action = 'disable';\n} else if (total >= 5 && errorRate <= THRESHOLD && currentStatus === 'Disabled') {\n  action = 'enable';\n}\n\nreturn [{\n  json: {\n    feature: FEATURE_NAME,\n    error_rate: Math.round(errorRate * 1000) / 10,\n    threshold: Math.round(THRESHOLD * 100),\n    events_analyzed: total,\n    current_status: currentStatus,\n    action: action\n  }\n}];"
+      },
+      "id": "code_calc_4",
+      "name": "Calc Error Rate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 0]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.action }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "disable",
+              "output": 0
+            },
+            {
+              "value2": "enable",
+              "output": 1
+            }
+          ]
+        },
+        "fallbackOutput": 2
+      },
+      "id": "switch_action_5",
+      "name": "Action?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1000, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:5150/api/features/search_v2/state",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-auth",
+              "value": "proshop-secret"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"state\":\"Disabled\"}",
+        "options": {}
+      },
+      "id": "http_disable_6",
+      "name": "Disable Feature",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, -200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8536234836:AAElltdNVTpvablFA93gjC6uyuCHl-eNafs/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ chat_id: '234769827', text: '⚠ Feature `' + $json.feature + '` DISABLED!\\nError rate: ' + $json.error_rate + '% (threshold: ' + $json.threshold + '%)\\nEvents analyzed: ' + $json.events_analyzed, parse_mode: 'Markdown' }) }}",
+        "options": {}
+      },
+      "id": "tg_disable_7",
+      "name": "Alert Disabled",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1500, -200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:5150/api/features/search_v2/state",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-auth",
+              "value": "proshop-secret"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"state\":\"Testing\"}",
+        "options": {}
+      },
+      "id": "http_enable_8",
+      "name": "Re-enable Feature",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 100]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8536234836:AAElltdNVTpvablFA93gjC6uyuCHl-eNafs/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ chat_id: '234769827', text: '✅ Feature `' + $json.feature + '` RE-ENABLED\\nError rate returned to normal: ' + $json.error_rate + '%\\nEvents analyzed: ' + $json.events_analyzed, parse_mode: 'Markdown' }) }}",
+        "options": {}
+      },
+      "id": "tg_enable_9",
+      "name": "Alert Restored",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1500, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "// No action needed — log the check\nreturn [{\n  json: {\n    message: 'No action needed',\n    error_rate: $input.first().json.error_rate + '%',\n    status: $input.first().json.current_status\n  }\n}];"
+      },
+      "id": "code_noop_10",
+      "name": "No Action",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 300]
+    }
+  ],
+  "connections": {
+    "Every 1 Minute": {
+      "main": [
+        [
+          {
+            "node": "Get Logs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Logs": {
+      "main": [
+        [
+          {
+            "node": "Get Feature State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Feature State": {
+      "main": [
+        [
+          {
+            "node": "Calc Error Rate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calc Error Rate": {
+      "main": [
+        [
+          {
+            "node": "Action?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Action?": {
+      "main": [
+        [
+          {
+            "node": "Disable Feature",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Re-enable Feature",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Disable Feature": {
+      "main": [
+        [
+          {
+            "node": "Alert Disabled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Re-enable Feature": {
+      "main": [
+        [
+          {
+            "node": "Alert Restored",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {}
+}

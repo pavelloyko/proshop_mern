@@ -3,6 +3,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import Message from '../components/Message'
 import { listFeatureFlags } from '../actions/featureFlagActions'
 
+const N8N_WEBHOOK = 'http://localhost:5678/webhook/feature-toggle'
+const REST_API = 'http://localhost:5150'
+const AUTH_SECRET = 'proshop-secret'
+
 const STATUS_OPTIONS = ['All', 'Enabled', 'Testing', 'Disabled']
 
 const STATUS_ICONS = {
@@ -18,12 +22,6 @@ const statusBadgeClass = (status) => {
     case 'Disabled': return 'feature-badge feature-badge--disabled'
     default: return 'feature-badge'
   }
-}
-
-const nextStatus = (current) => {
-  if (current === 'Enabled') return 'Disabled'
-  if (current === 'Testing') return 'Enabled'
-  return 'Enabled'
 }
 
 const SkeletonRows = () => (
@@ -63,22 +61,106 @@ const EmptyState = ({ hasFilters, onReset }) => (
   </div>
 )
 
-const ToggleSwitch = ({ checked, onChange, label }) => (
-  <label className="feature-toggle" title={`Toggle ${label}`}>
-    <span className="feature-toggle__sr-label">Toggle {label}</span>
-    <input
-      type="checkbox"
-      role="switch"
-      aria-checked={checked}
-      checked={checked}
-      onChange={onChange}
-    />
-    <span className="feature-toggle__track" />
-    <span className="feature-toggle__thumb" />
-  </label>
+const Toast = ({ message, type, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 4000)
+    return () => clearTimeout(timer)
+  }, [onClose])
+
+  if (!message) return null
+
+  return (
+    <div className={`feature-toast feature-toast--${type}`} role="alert">
+      <span className="feature-toast__icon">
+        {type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ'}
+      </span>
+      <span className="feature-toast__msg">{message}</span>
+      <button className="feature-toast__close" onClick={onClose} aria-label="Close">
+        {'×'}
+      </button>
+    </div>
+  )
+}
+
+const ActionButtons = ({ featureId, status, onAction, loading }) => (
+  <div className="feature-actions">
+    {status !== 'Enabled' && (
+      <button
+        className="feature-action-btn feature-action-btn--enable"
+        onClick={() => onAction(featureId, 'enable')}
+        disabled={loading}
+        title="Enable feature"
+      >
+        Enable
+      </button>
+    )}
+    {status !== 'Testing' && (
+      <button
+        className="feature-action-btn feature-action-btn--testing"
+        onClick={() => onAction(featureId, 'testing')}
+        disabled={loading}
+        title="Set to Testing"
+      >
+        Testing
+      </button>
+    )}
+    {status !== 'Disabled' && (
+      <button
+        className="feature-action-btn feature-action-btn--disable"
+        onClick={() => onAction(featureId, 'disable')}
+        disabled={loading}
+        title="Disable feature"
+      >
+        Disable
+      </button>
+    )}
+  </div>
 )
 
-const FeatureRow = ({ id, flag, onToggle, onTrafficChange, flashId }) => {
+const TrafficControl = ({ featureId, percentage, status, onApply, loading }) => {
+  const [value, setValue] = useState(percentage)
+
+  useEffect(() => {
+    setValue(percentage)
+  }, [percentage])
+
+  const canApply = status === 'Testing' && value !== percentage
+
+  return (
+    <div className="feature-traffic">
+      <div className="feature-slider">
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={value}
+          onChange={(e) => setValue(Number(e.target.value))}
+          style={{ backgroundSize: `${value}% 100%` }}
+          aria-label={`Traffic percentage`}
+          aria-valuenow={value}
+          aria-valuemin="0"
+          aria-valuemax="100"
+          disabled={status !== 'Testing'}
+        />
+        <span className="feature-slider__value">{value}%</span>
+      </div>
+      {canApply && (
+        <button
+          className="feature-action-btn feature-action-btn--apply"
+          onClick={() => onApply(featureId, value)}
+          disabled={loading}
+        >
+          Apply
+        </button>
+      )}
+      {status !== 'Testing' && (
+        <span className="feature-traffic__hint">Set to Testing first</span>
+      )}
+    </div>
+  )
+}
+
+const FeatureRow = ({ id, flag, onAction, onTrafficApply, flashId, loading }) => {
   const isFlashing = flashId === id
   return (
     <tr className={isFlashing ? 'feature-row--success' : ''}>
@@ -95,27 +177,20 @@ const FeatureRow = ({ id, flag, onToggle, onTrafficChange, flashId }) => {
         </span>
       </td>
       <td>
-        <div className="feature-slider">
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={flag.traffic_percentage}
-            onChange={(e) => onTrafficChange(id, Number(e.target.value))}
-            style={{ backgroundSize: `${flag.traffic_percentage}% 100%` }}
-            aria-label={`Traffic percentage for ${flag.name}`}
-            aria-valuenow={flag.traffic_percentage}
-            aria-valuemin="0"
-            aria-valuemax="100"
-          />
-          <span className="feature-slider__value">{flag.traffic_percentage}%</span>
-        </div>
+        <TrafficControl
+          featureId={id}
+          percentage={flag.traffic_percentage}
+          status={flag.status}
+          onApply={onTrafficApply}
+          loading={loading}
+        />
       </td>
       <td>
-        <ToggleSwitch
-          checked={flag.status !== 'Disabled'}
-          onChange={() => onToggle(id)}
-          label={flag.name}
+        <ActionButtons
+          featureId={id}
+          status={flag.status}
+          onAction={onAction}
+          loading={loading}
         />
       </td>
       <td>{flag.last_modified}</td>
@@ -130,7 +205,10 @@ const FeatureFlagListScreen = ({ history }) => {
   const [statusFilter, setStatusFilter] = useState('All')
   const [localFlags, setLocalFlags] = useState({})
   const [flashId, setFlashId] = useState(null)
+  const [toast, setToast] = useState({ message: '', type: 'info' })
+  const [actionLoading, setActionLoading] = useState(null)
   const flashTimer = useRef(null)
+  const pollingRef = useRef(null)
 
   const featureFlags = useSelector((state) => state.featureFlags)
   const { loading, error, flags } = featureFlags
@@ -152,6 +230,12 @@ const FeatureFlagListScreen = ({ history }) => {
     }
   }, [flags])
 
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current)
+    }
+  }, [])
+
   const filteredFlags = useMemo(() => {
     return Object.entries(localFlags).filter(([id, flag]) => {
       const name = (flag.name_ru || flag.name || '').toLowerCase()
@@ -170,22 +254,84 @@ const FeatureFlagListScreen = ({ history }) => {
     flashTimer.current = setTimeout(() => setFlashId(null), 600)
   }, [])
 
-  const handleToggle = useCallback((id) => {
-    setLocalFlags((prev) => {
-      const next = { ...prev }
-      next[id] = { ...next[id], status: nextStatus(next[id].status) }
-      return next
-    })
-    triggerFlash(id)
-  }, [triggerFlash])
+  const startPolling = useCallback(() => {
+    if (pollingRef.current) clearInterval(pollingRef.current)
+    pollingRef.current = setInterval(() => {
+      dispatch(listFeatureFlags())
+    }, 2000)
+    setTimeout(() => {
+      if (pollingRef.current) clearInterval(pollingRef.current)
+    }, 10000)
+  }, [dispatch])
 
-  const handleTrafficChange = useCallback((id, value) => {
-    setLocalFlags((prev) => {
-      const next = { ...prev }
-      next[id] = { ...next[id], traffic_percentage: value }
-      return next
-    })
-  }, [])
+  const sendWebhookAction = useCallback(async (featureId, action, trafficPercentage) => {
+    setActionLoading(featureId)
+    try {
+      const body = { feature_name: featureId, action }
+      if (trafficPercentage !== undefined) {
+        body.traffic_percentage = trafficPercentage
+      }
+
+      let response
+      try {
+        const n8nRes = await fetch(N8N_WEBHOOK, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-auth': AUTH_SECRET,
+          },
+          body: JSON.stringify(body),
+        })
+        if (n8nRes.ok) {
+          response = await n8nRes.json()
+        } else {
+          throw new Error('n8n webhook failed')
+        }
+      } catch {
+        // Fallback to direct REST API
+        const stateMap = { enable: 'Enabled', disable: 'Disabled', testing: 'Testing' }
+        const endpoint = action === 'traffic'
+          ? `${REST_API}/api/features/${featureId}/traffic`
+          : `${REST_API}/api/features/${featureId}/state`
+        const payload = action === 'traffic'
+          ? { percentage: trafficPercentage }
+          : { state: stateMap[action] }
+
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-auth': AUTH_SECRET,
+          },
+          body: JSON.stringify(payload),
+        })
+        response = await res.json()
+        if (!res.ok) {
+          throw new Error(response.message || response.error || 'Request failed')
+        }
+      }
+
+      if (response.error) {
+        setToast({ message: response.message || response.error, type: 'error' })
+      } else {
+        setToast({ message: response.message || 'Done', type: 'success' })
+        triggerFlash(featureId)
+        startPolling()
+      }
+    } catch (err) {
+      setToast({ message: `Error: ${err.message}`, type: 'error' })
+    } finally {
+      setActionLoading(null)
+    }
+  }, [triggerFlash, startPolling])
+
+  const handleAction = useCallback((featureId, action) => {
+    sendWebhookAction(featureId, action)
+  }, [sendWebhookAction])
+
+  const handleTrafficApply = useCallback((featureId, percentage) => {
+    sendWebhookAction(featureId, 'traffic', percentage)
+  }, [sendWebhookAction])
 
   const handleReset = () => {
     setSearchTerm('')
@@ -197,6 +343,8 @@ const FeatureFlagListScreen = ({ history }) => {
 
   return (
     <section className="feature-dashboard" aria-labelledby="feature-dashboard-title">
+      <Toast message={toast.message} type={toast.type} onClose={() => setToast({ message: '', type: 'info' })} />
+
       <div className="feature-dashboard__header">
         <h1 className="feature-dashboard__title" id="feature-dashboard-title">Feature Dashboard</h1>
       </div>
@@ -247,7 +395,7 @@ const FeatureFlagListScreen = ({ history }) => {
                   <th scope="col">Feature</th>
                   <th scope="col">Status</th>
                   <th scope="col">Traffic</th>
-                  <th scope="col">Toggle</th>
+                  <th scope="col">Actions</th>
                   <th scope="col">Modified</th>
                 </tr>
               </thead>
@@ -257,9 +405,10 @@ const FeatureFlagListScreen = ({ history }) => {
                     key={id}
                     id={id}
                     flag={flag}
-                    onToggle={handleToggle}
-                    onTrafficChange={handleTrafficChange}
+                    onAction={handleAction}
+                    onTrafficApply={handleTrafficApply}
                     flashId={flashId}
+                    loading={actionLoading === id}
                   />
                 ))}
               </tbody>
