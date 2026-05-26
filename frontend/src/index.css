@@ -1190,3 +1190,132 @@ textarea.form-control {
     width: 80px;
   }
 }
+
+/* ─── Auto-Pilot Controls ─── */
+.autopilot {
+  margin-top: 24px;
+  padding: 24px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.autopilot__title {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
+  color: var(--fg);
+}
+
+.autopilot__desc {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+.autopilot__status-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.autopilot__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.autopilot__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.autopilot__value {
+  color: var(--fg);
+  font-size: 13px;
+}
+
+.autopilot__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.autopilot__feedback {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.autopilot__feedback--success {
+  background: rgba(110, 231, 183, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(110, 231, 183, 0.2);
+}
+
+.autopilot__feedback--error {
+  background: rgba(252, 165, 165, 0.1);
+  color: var(--destructive);
+  border: 1px solid rgba(252, 165, 165, 0.2);
+}
+
+.feature-dashboard-page__selector {
+  max-width: 1200px;
+  margin: 48px auto 0;
+}
+
+.feature-dashboard-page__subtitle {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: var(--fg);
+}
+
+.feature-dashboard-page__field {
+  margin-bottom: 16px;
+}
+
+.feature-dashboard-page__label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.feature-dashboard-page__select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 14px;
+  min-width: 300px;
+}
+
+.feature-dashboard-page__select:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .autopilot__actions {
+    flex-direction: column;
+  }
+  .feature-dashboard-page__select {
+    min-width: 100%;
+  }
+}
