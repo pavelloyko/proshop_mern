@@ -3,9 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import Message from '../components/Message'
 import { listFeatureFlags } from '../actions/featureFlagActions'
 
-const N8N_WEBHOOK = 'http://localhost:5678/webhook/feature-toggle'
-const REST_API = 'http://localhost:5150'
-const AUTH_SECRET = 'proshop-secret'
+const N8N_WEBHOOK = 'http://localhost:5678/webhook/feature-control'
 
 const STATUS_OPTIONS = ['All', 'Enabled', 'Testing', 'Disabled']
 
@@ -267,19 +265,20 @@ const FeatureFlagListScreen = ({ history }) => {
   const sendWebhookAction = useCallback(async (featureId, action, trafficPercentage) => {
     setActionLoading(featureId)
     try {
-      const body = { feature_name: featureId, action }
-      if (trafficPercentage !== undefined) {
-        body.traffic_percentage = trafficPercentage
-      }
-
       let response
+
+      // Try n8n webhook first
       try {
+        const body = { feature_id: featureId, action }
+        if (trafficPercentage !== undefined) {
+          body.traffic_percentage = trafficPercentage
+        }
+        if (action === 'test') body.target_state = 'Testing'
+        if (action === 'rollback') body.target_state = 'Disabled'
+
         const n8nRes = await fetch(N8N_WEBHOOK, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-auth': AUTH_SECRET,
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         })
         if (n8nRes.ok) {
@@ -288,21 +287,18 @@ const FeatureFlagListScreen = ({ history }) => {
           throw new Error('n8n webhook failed')
         }
       } catch {
-        // Fallback to direct REST API
+        // Fallback: direct backend API
         const stateMap = { enable: 'Enabled', disable: 'Disabled', testing: 'Testing' }
         const endpoint = action === 'traffic'
-          ? `${REST_API}/api/features/${featureId}/traffic`
-          : `${REST_API}/api/features/${featureId}/state`
+          ? `/api/feature-flags/${featureId}/traffic`
+          : `/api/feature-flags/${featureId}/state`
         const payload = action === 'traffic'
           ? { percentage: trafficPercentage }
           : { state: stateMap[action] }
 
         const res = await fetch(endpoint, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-auth': AUTH_SECRET,
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         })
         response = await res.json()

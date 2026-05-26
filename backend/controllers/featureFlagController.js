@@ -62,4 +62,82 @@ const getFeatureFlagByName = asyncHandler(async (req, res) => {
   })
 })
 
-export { getFeatureFlags, getFeatureFlagDescriptions, getFeatureFlagByName }
+// @desc    Set feature flag state
+// @route   POST /api/feature-flags/:name/state
+// @access  Private/Admin
+const setFeatureState = asyncHandler(async (req, res) => {
+  const { state } = req.body
+  const validStates = ['Enabled', 'Disabled', 'Testing']
+
+  if (!validStates.includes(state)) {
+    res.status(400)
+    throw new Error(`Invalid state "${state}". Must be: ${validStates.join(', ')}`)
+  }
+
+  const raw = fs.readFileSync(FLAGS_PATH, 'utf-8')
+  const flags = JSON.parse(raw)
+  const name = req.params.name
+
+  if (!flags[name]) {
+    res.status(404)
+    throw new Error(`Feature flag "${name}" not found`)
+  }
+
+  flags[name].status = state
+  if (state === 'Disabled') flags[name].traffic_percentage = 0
+  if (state === 'Enabled') flags[name].traffic_percentage = 100
+  flags[name].last_modified = new Date().toISOString()
+
+  fs.writeFileSync(FLAGS_PATH, JSON.stringify(flags, null, 2), 'utf-8')
+
+  const descRaw = fs.readFileSync(DESCS_PATH, 'utf-8')
+  const descriptions = JSON.parse(descRaw)
+
+  res.json({
+    success: true,
+    message: `Feature "${name}" set to ${state}`,
+    [name]: { ...flags[name], ...(descriptions[name] || {}) },
+  })
+})
+
+// @desc    Adjust traffic rollout percentage
+// @route   POST /api/feature-flags/:name/traffic
+// @access  Private/Admin
+const adjustTrafficRollout = asyncHandler(async (req, res) => {
+  const { percentage } = req.body
+
+  if (typeof percentage !== 'number' || percentage < 0 || percentage > 100) {
+    res.status(400)
+    throw new Error(`Invalid percentage "${percentage}". Must be 0-100.`)
+  }
+
+  const raw = fs.readFileSync(FLAGS_PATH, 'utf-8')
+  const flags = JSON.parse(raw)
+  const name = req.params.name
+
+  if (!flags[name]) {
+    res.status(404)
+    throw new Error(`Feature flag "${name}" not found`)
+  }
+
+  if (flags[name].status !== 'Testing') {
+    res.status(400)
+    throw new Error(`Feature "${name}" must be in Testing state to adjust traffic. Current: ${flags[name].status}`)
+  }
+
+  flags[name].traffic_percentage = percentage
+  flags[name].last_modified = new Date().toISOString()
+
+  fs.writeFileSync(FLAGS_PATH, JSON.stringify(flags, null, 2), 'utf-8')
+
+  const descRaw = fs.readFileSync(DESCS_PATH, 'utf-8')
+  const descriptions = JSON.parse(descRaw)
+
+  res.json({
+    success: true,
+    message: `Traffic for "${name}" set to ${percentage}%`,
+    [name]: { ...flags[name], ...(descriptions[name] || {}) },
+  })
+})
+
+export { getFeatureFlags, getFeatureFlagDescriptions, getFeatureFlagByName, setFeatureState, adjustTrafficRollout }
