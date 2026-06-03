@@ -1,9 +1,16 @@
 import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Message from '../components/Message'
+import AutoPilotControls from '../components/AutoPilotControls'
 import { listFeatureFlags } from '../actions/featureFlagActions'
 
-const N8N_WEBHOOK = 'http://localhost:5678/webhook/feature-control'
+// Map frontend action names to WF1 action names
+const ACTION_MAP = {
+  enable: 'enable',
+  testing: 'test',
+  disable: 'rollback',
+  traffic: 'rollout',
+}
 
 const STATUS_OPTIONS = ['All', 'Enabled', 'Testing', 'Disabled']
 
@@ -158,7 +165,16 @@ const TrafficControl = ({ featureId, percentage, status, onApply, loading }) => 
   )
 }
 
-const FeatureRow = ({ id, flag, onAction, onTrafficApply, flashId, loading }) => {
+const FeatureRow = ({
+  id,
+  flag,
+  onAction,
+  onTrafficApply,
+  onSelectAutoPilot,
+  isSelected,
+  flashId,
+  loading,
+}) => {
   const isFlashing = flashId === id
   return (
     <tr className={isFlashing ? 'feature-row--success' : ''}>
@@ -191,6 +207,17 @@ const FeatureRow = ({ id, flag, onAction, onTrafficApply, flashId, loading }) =>
           loading={loading}
         />
       </td>
+      <td>
+        <button
+          className={`feature-action-btn feature-action-btn--autopilot${isSelected ? ' is-active' : ''}`}
+          onClick={() => onSelectAutoPilot(id)}
+          disabled={loading}
+          aria-pressed={!!isSelected}
+          title="Open AI Agent control panel"
+        >
+          {isSelected ? 'Auto-Pilot ✓' : '🤖 Auto-Pilot'}
+        </button>
+      </td>
       <td>{flag.last_modified}</td>
     </tr>
   )
@@ -205,6 +232,7 @@ const FeatureFlagListScreen = ({ history }) => {
   const [flashId, setFlashId] = useState(null)
   const [toast, setToast] = useState({ message: '', type: 'info' })
   const [actionLoading, setActionLoading] = useState(null)
+  const [selectedAutoPilot, setSelectedAutoPilot] = useState(null)
   const flashTimer = useRef(null)
   const pollingRef = useRef(null)
 
@@ -267,16 +295,18 @@ const FeatureFlagListScreen = ({ history }) => {
     try {
       let response
 
-      // Try n8n webhook first
-      try {
-        const body = { feature_id: featureId, action }
-        if (trafficPercentage !== undefined) {
-          body.traffic_percentage = trafficPercentage
-        }
-        if (action === 'test') body.target_state = 'Testing'
-        if (action === 'rollback') body.target_state = 'Disabled'
+      // Map action to WF1 AI Agent format and send to n8n webhook
+      const agentAction = ACTION_MAP[action] || action
+      const body = { feature_id: featureId, action: agentAction }
+      if (trafficPercentage !== undefined) {
+        body.traffic_percentage = trafficPercentage
+      }
+      if (agentAction === 'test') body.target_state = 'Testing'
+      if (agentAction === 'rollback') body.target_state = 'Disabled'
 
-        const n8nRes = await fetch(N8N_WEBHOOK, {
+      try {
+        // Use backend proxy to keep API key server-side
+        const n8nRes = await fetch('/api/autopilot/feature-control', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
@@ -284,10 +314,10 @@ const FeatureFlagListScreen = ({ history }) => {
         if (n8nRes.ok) {
           response = await n8nRes.json()
         } else {
-          throw new Error('n8n webhook failed')
+          throw new Error(`n8n returned ${n8nRes.status}`)
         }
-      } catch {
-        // Fallback: direct backend API
+      } catch (n8nError) {
+        // Fallback: direct backend API (bypasses AI Agent)
         const stateMap = { enable: 'Enabled', disable: 'Disabled', testing: 'Testing' }
         const endpoint = action === 'traffic'
           ? `/api/feature-flags/${featureId}/traffic`
@@ -307,10 +337,15 @@ const FeatureFlagListScreen = ({ history }) => {
         }
       }
 
-      if (response.error) {
-        setToast({ message: response.message || response.error, type: 'error' })
+      // n8n Respond node may return array — unwrap first item
+      const payload = Array.isArray(response) ? response[0] : response
+
+      if (payload.error || payload.success === false) {
+        setToast({ message: payload.message || payload.error || 'Action failed', type: 'error' })
       } else {
-        setToast({ message: response.message || 'Done', type: 'success' })
+        // Show AI Agent's response message
+        const agentMessage = payload.message || payload.alert_message || `Status: ${payload.status || 'updated'}`
+        setToast({ message: agentMessage, type: 'success' })
         triggerFlash(featureId)
         startPolling()
       }
@@ -329,6 +364,14 @@ const FeatureFlagListScreen = ({ history }) => {
     sendWebhookAction(featureId, 'traffic', percentage)
   }, [sendWebhookAction])
 
+  const handleSelectAutoPilot = useCallback((id) => {
+    setSelectedAutoPilot((cur) => (cur === id ? null : id))
+  }, [])
+
+  const handleAutoPilotUpdate = useCallback(() => {
+    dispatch(listFeatureFlags())
+  }, [dispatch])
+
   const handleReset = () => {
     setSearchTerm('')
     setStatusFilter('All')
@@ -336,6 +379,11 @@ const FeatureFlagListScreen = ({ history }) => {
 
   const totalCount = Object.keys(localFlags).length
   const hasFilters = searchTerm !== '' || statusFilter !== 'All'
+
+  // Find the selected feature data for AutoPilotControls
+  const selectedFlag = selectedAutoPilot && localFlags[selectedAutoPilot]
+    ? { id: selectedAutoPilot, name: localFlags[selectedAutoPilot].name || selectedAutoPilot }
+    : null
 
   return (
     <section className="feature-dashboard" aria-labelledby="feature-dashboard-title">
@@ -392,6 +440,7 @@ const FeatureFlagListScreen = ({ history }) => {
                   <th scope="col">Status</th>
                   <th scope="col">Traffic</th>
                   <th scope="col">Actions</th>
+                  <th scope="col">AI Agent</th>
                   <th scope="col">Modified</th>
                 </tr>
               </thead>
@@ -403,6 +452,8 @@ const FeatureFlagListScreen = ({ history }) => {
                     flag={flag}
                     onAction={handleAction}
                     onTrafficApply={handleTrafficApply}
+                    onSelectAutoPilot={handleSelectAutoPilot}
+                    isSelected={selectedAutoPilot === id}
                     flashId={flashId}
                     loading={actionLoading === id}
                   />
@@ -415,6 +466,17 @@ const FeatureFlagListScreen = ({ history }) => {
           </div>
         )}
       </div>
+
+      {/* Auto-Pilot Panel — appears when a feature is selected */}
+      {selectedFlag && (
+        <div className="autopilot-panel">
+          <AutoPilotControls
+            feature={selectedFlag}
+            onUpdate={handleAutoPilotUpdate}
+            onClose={() => setSelectedAutoPilot(null)}
+          />
+        </div>
+      )}
     </section>
   )
 }

@@ -3,8 +3,8 @@
     "name": "New Search Algorithm",
     "description": "Replaces legacy regex-based keyword matching with a hybrid BM25 + TF-IDF ranking pipeline. Improves relevance for multi-word queries and handles common misspellings via fuzzy matching. Backend: new productController search path; index built on name, brand, category, description fields.",
     "status": "Testing",
-    "traffic_percentage": 25,
-    "last_modified": "2026-05-04",
+    "traffic_percentage": 100,
+    "last_modified": "2026-06-02T15:40:24.806Z",
     "targeted_segments": [
       "beta_users",
       "internal"
@@ -14,9 +14,9 @@
   "semantic_search": {
     "name": "Semantic Vector Search",
     "description": "Augments keyword search with embedding-based semantic similarity. Products are encoded at index time; queries are embedded at runtime and matched via cosine similarity. Requires search_v2 to be Enabled first. Significantly improves discovery for natural-language queries like 'good headphones for running'.",
-    "status": "Disabled",
-    "traffic_percentage": 0,
-    "last_modified": "2026-05-04",
+    "status": "Enabled",
+    "traffic_percentage": 100,
+    "last_modified": "2026-06-02T15:39:17.439Z",
     "targeted_segments": [
       "internal"
     ],
@@ -28,9 +28,9 @@
   "search_autosuggest": {
     "name": "Search Autocomplete / Autosuggest",
     "description": "Adds a real-time dropdown of suggested queries and product names as the user types in the SearchBox component. Debounced at 250ms; calls a lightweight /api/products/suggest endpoint. Improves time-to-first-result and reduces zero-result searches.",
-    "status": "Testing",
-    "traffic_percentage": 25,
-    "last_modified": "2026-03-22",
+    "status": "Enabled",
+    "traffic_percentage": 100,
+    "last_modified": "2026-06-02",
     "targeted_segments": [
       "all"
     ],
@@ -39,9 +39,9 @@
   "cart_redesign": {
     "name": "Redesigned Cart UI",
     "description": "Replaces the current two-column CartScreen layout with a streamlined single-page cart with inline quantity editing, animated item removal, and a persistent sticky order summary sidebar. Reduces the number of clicks needed to proceed to checkout by 40% in internal testing.",
-    "status": "Testing",
-    "traffic_percentage": 10,
-    "last_modified": "2026-04-01",
+    "status": "Enabled",
+    "traffic_percentage": 100,
+    "last_modified": "2026-06-02",
     "targeted_segments": [
       "beta_users"
     ],
@@ -272,9 +272,9 @@
   "dark_mode": {
     "name": "Dark Mode Theme",
     "description": "Adds a theme toggle to the Header component that switches the app between the default light Bootstrap theme and a dark palette. Preference is persisted to localStorage and respected on next visit. Requires overriding Bootstrap CSS custom properties; no backend changes.",
-    "status": "Testing",
-    "traffic_percentage": 20,
-    "last_modified": "2026-05-04",
+    "status": "Enabled",
+    "traffic_percentage": 100,
+    "last_modified": "2026-06-02",
     "targeted_segments": [
       "all"
     ],

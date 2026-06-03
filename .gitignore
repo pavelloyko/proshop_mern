@@ -28,3 +28,7 @@ yarn-error.log*
 # python
 __pycache__/
 *.pyc
+
+# n8n local data (database, logs, MCP build)
+n8n-data/
+n8n-mcp/
