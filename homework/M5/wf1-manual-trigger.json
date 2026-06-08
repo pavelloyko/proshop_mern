@@ -222,7 +222,7 @@
     },
     {
       "parameters": {
-        "endpointUrl": "https://inbox-heads-better-mazda.trycloudflare.com/mcp",
+        "endpointUrl": "http://host.docker.internal:3100/sse",
         "authentication": "bearerAuth",
         "options": {}
       },

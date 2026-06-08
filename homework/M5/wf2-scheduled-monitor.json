@@ -36,7 +36,7 @@
     },
     {
       "parameters": {
-        "url": "https://receivers-worker-arnold-but.trycloudflare.com/logs.json",
+        "url": "http://host.docker.internal:3101/logs.json",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -51,7 +51,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://accurately-month-insured-rows.trycloudflare.com/mcp",
+        "url": "http://host.docker.internal:3100/mcp",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpBearerAuth",
         "sendHeaders": true,
@@ -96,7 +96,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://accurately-month-insured-rows.trycloudflare.com/mcp",
+        "url": "http://host.docker.internal:3100/mcp",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpBearerAuth",
         "sendHeaders": true,
@@ -361,7 +361,7 @@
     },
     {
       "parameters": {
-        "endpointUrl": "https://accurately-month-insured-rows.trycloudflare.com/mcp",
+        "endpointUrl": "http://host.docker.internal:3100/sse",
         "authentication": "bearerAuth",
         "options": {}
       },

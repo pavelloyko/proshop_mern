@@ -9,9 +9,7 @@ services:
     volumes:
       - ./n8n-data:/home/node/.n8n
     environment:
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD=proshop
+      - N8N_BASIC_AUTH_ACTIVE=false
       - WEBHOOK_URL=http://localhost:5678/
       - GENERIC_TIMEZONE=Europe/Moscow
       - TZ=Europe/Moscow
