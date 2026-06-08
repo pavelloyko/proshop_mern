@@ -68,18 +68,33 @@ const AIRouterDashboardScreen = ({ history }) => {
           {/* Summary Cards */}
           <Row className='mb-4'>
             <Col md={3}>
-              <Card className='text-center p-3'>
-                <h5 className='text-muted'>Total Queries</h5>
-                <h2>{stats.total || 0}</h2>
+              <Card
+                className='text-center p-3'
+                style={{
+                  backgroundColor: '#1a1a2e',
+                  color: '#e0e0e0',
+                  border: '1px solid #333',
+                }}
+              >
+                <h5 style={{ color: '#adb5bd', fontSize: '13px' }}>
+                  Total Queries
+                </h5>
+                <h2 style={{ color: '#ffffff' }}>{stats.total || 0}</h2>
               </Card>
             </Col>
             <Col md={3}>
               <Card
                 className='text-center p-3'
-                style={{ backgroundColor: '#e8f5e9' }}
+                style={{
+                  backgroundColor: '#0d2818',
+                  color: '#c8e6c9',
+                  border: '1px solid #1b5e20',
+                }}
               >
-                <h5 className='text-muted'>🔒 Local (PII)</h5>
-                <h2 style={{ color: '#2e7d32' }}>
+                <h5 style={{ color: '#81c784', fontSize: '13px' }}>
+                  🔒 Local (PII)
+                </h5>
+                <h2 style={{ color: '#4caf50' }}>
                   {stats.localCount || 0}
                 </h2>
               </Card>
@@ -87,10 +102,16 @@ const AIRouterDashboardScreen = ({ history }) => {
             <Col md={3}>
               <Card
                 className='text-center p-3'
-                style={{ backgroundColor: '#e3f2fd' }}
+                style={{
+                  backgroundColor: '#0a1929',
+                  color: '#bbdefb',
+                  border: '1px solid #0d47a1',
+                }}
               >
-                <h5 className='text-muted'>☁️ Cloud</h5>
-                <h2 style={{ color: '#1565c0' }}>
+                <h5 style={{ color: '#64b5f6', fontSize: '13px' }}>
+                  ☁️ Cloud
+                </h5>
+                <h2 style={{ color: '#42a5f5' }}>
                   {stats.cloudCount || 0}
                 </h2>
               </Card>
@@ -98,10 +119,16 @@ const AIRouterDashboardScreen = ({ history }) => {
             <Col md={3}>
               <Card
                 className='text-center p-3'
-                style={{ backgroundColor: '#fff3e0' }}
+                style={{
+                  backgroundColor: '#2e1a0e',
+                  color: '#ffe0b2',
+                  border: '1px solid #e65100',
+                }}
               >
-                <h5 className='text-muted'>💰 Saved by Local</h5>
-                <h2 style={{ color: '#e65100' }}>
+                <h5 style={{ color: '#ffb74d', fontSize: '13px' }}>
+                  💰 Saved by Local
+                </h5>
+                <h2 style={{ color: '#ff9800' }}>
                   ${stats.savedByLocal || 0}
                 </h2>
               </Card>
