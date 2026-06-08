@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler'
 import Order from '../models/orderModel.js'
+import Product from '../models/productModel.js'
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -9,10 +10,6 @@ const addOrderItems = asyncHandler(async (req, res) => {
     orderItems,
     shippingAddress,
     paymentMethod,
-    itemsPrice,
-    taxPrice,
-    shippingPrice,
-    totalPrice,
   } = req.body
 
   if (orderItems && orderItems.length === 0) {
@@ -20,8 +17,42 @@ const addOrderItems = asyncHandler(async (req, res) => {
     throw new Error('No order items')
     return
   } else {
+    // Server-side price recalculation from Product DB records
+    const productIds = orderItems.map((item) => item.product)
+    const products = await Product.find({ _id: { $in: productIds } })
+
+    // Build a price lookup map from DB results
+    const productMap = new Map()
+    for (const p of products) {
+      productMap.set(p._id.toString(), p)
+    }
+
+    // Validate all products exist and recalculate prices
+    const recalculatedItems = orderItems.map((item) => {
+      const product = productMap.get(item.product)
+      if (!product) {
+        throw new Error(`Product not found: ${item.product}`)
+      }
+      return {
+        name: product.name,
+        qty: item.qty,
+        image: product.image,
+        price: product.price,
+        product: item.product,
+      }
+    })
+
+    // Calculate totals server-side
+    const itemsPrice = recalculatedItems.reduce(
+      (acc, item) => acc + item.price * item.qty,
+      0
+    )
+    const taxPrice = Number((itemsPrice * 0.15).toFixed(2))
+    const shippingPrice = itemsPrice > 100 ? 0 : 10
+    const totalPrice = Number((itemsPrice + taxPrice + shippingPrice).toFixed(2))
+
     const order = new Order({
-      orderItems,
+      orderItems: recalculatedItems,
       user: req.user._id,
       shippingAddress,
       paymentMethod,
