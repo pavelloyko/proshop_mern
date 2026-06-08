@@ -25,7 +25,7 @@ This is faster than find/tree/ls, accurate, and machine-readable.
 How: `python3 .claude/scripts/update_project_index.py`
 Or: automatically via PostToolUse hook (see .claude/settings.local.json)
 
-For 4-step analysis of new modules — see examples in project-data/specs/ (or homework-m6/stage3-living-docs/specs/).
+For 4-step analysis of new modules — see examples in project-data/specs/ (or homework/M6/stage3-living-docs/specs/).
 
 ## Design rules: see ./DESIGN.md
 

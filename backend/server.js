@@ -12,6 +12,7 @@ import orderRoutes from './routes/orderRoutes.js'
 import uploadRoutes from './routes/uploadRoutes.js'
 import featureFlagRoutes from './routes/featureFlagRoutes.js'
 import autopilotRoutes from './routes/autopilotRoutes.js'
+import assistantRoutes from './routes/assistantRoutes.js'
 
 dotenv.config()
 
@@ -38,6 +39,7 @@ app.use('/api/orders', orderRoutes)
 app.use('/api/upload', uploadRoutes)
 app.use('/api/feature-flags', featureFlagRoutes)
 app.use('/api/autopilot', autopilotRoutes)
+app.use('/api/assistant', assistantRoutes)
 
 app.get('/api/config/paypal', (req, res) =>
   res.send(process.env.PAYPAL_CLIENT_ID)

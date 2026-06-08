@@ -134,8 +134,6 @@
       "CLAUDE.md",
       "DESIGN.md",
       "FINDINGS.md",
-      "M3",
-      "M4-materials",
       "Procfile",
       "README.md",
       "backend",
@@ -144,7 +142,7 @@
       "docs",
       "frontend",
       "homework",
-      "homework-m6",
+      "materials",
       "mcp-feature-flags",
       "mcp-rag-search",
       "n8n-data",
@@ -159,6 +157,295 @@
       "simulators",
       "start-all.sh",
       "uploads"
+    ],
+    "materials": [
+      "M3",
+      "M4",
+      "M6",
+      "M7"
+    ],
+    "materials/M6": [
+      "6.1-ai-code-review",
+      "6.2-living-documentation",
+      "6.3-legacy-strategies",
+      "6.4-synthetic-testing",
+      "README.md",
+      "homework-spec.md"
+    ],
+    "materials/M6/6.1-ai-code-review": [
+      "README.md",
+      "claude-code-review-setup.md",
+      "cloud-agent-team",
+      "honest-risks.md",
+      "tools-catalog.md"
+    ],
+    "materials/M6/6.1-ai-code-review/cloud-agent-team": [
+      "README.md",
+      "claude-pr-review.yml"
+    ],
+    "materials/M6/6.4-synthetic-testing": [
+      "README.md",
+      "coverage-vs-msi.md",
+      "recipe-ci-cd-layered.md",
+      "recipe-mini-task.md",
+      "tools-landscape.md"
+    ],
+    "materials/M6/6.3-legacy-strategies": [
+      "README.md",
+      "legacy-incidents.md",
+      "recipe-cc-reverse-engineering.md",
+      "recipe-risk-mitigation.md"
+    ],
+    "materials/M6/6.2-living-documentation": [
+      "README.md",
+      "agents-md-claude-md-standard.md",
+      "example-hooks",
+      "hooks-reference",
+      "keeping-docs-current.md",
+      "multi-level-docs-stack.md",
+      "numbers-card.md",
+      "project-index.example.json",
+      "recipe-inline-comments.md"
+    ],
+    "materials/M6/6.2-living-documentation/hooks-reference": [
+      "README.md",
+      "examples-gallery.md",
+      "hooks-deep-dive.md"
+    ],
+    "materials/M6/6.2-living-documentation/example-hooks": [
+      "README.md",
+      "settings.example.json",
+      "update_project_index.py"
+    ],
+    "materials/M7": [
+      "7.1-security",
+      "7.2-economics",
+      "7.3-adoption",
+      "7.4-horizons",
+      "homework",
+      "resources"
+    ],
+    "materials/M7/7.1-security": [],
+    "materials/M7/resources": [],
+    "materials/M7/7.2-economics": [],
+    "materials/M7/homework": [
+      "prompts"
+    ],
+    "materials/M7/homework/prompts": [],
+    "materials/M7/7.4-horizons": [],
+    "materials/M7/7.3-adoption": [],
+    "materials/M3": [
+      "assignment",
+      "guides",
+      "project-data",
+      "skills",
+      "stack-choice.md"
+    ],
+    "materials/M3/project-data": [
+      "adrs",
+      "api",
+      "architecture.md",
+      "best-practices.md",
+      "dev-history.md",
+      "feature-flags-spec.md",
+      "features",
+      "features-analysis-ru.md",
+      "features.json",
+      "glossary.md",
+      "incidents",
+      "pages",
+      "runbooks"
+    ],
+    "materials/M3/project-data/features": [
+      "admin.md",
+      "auth.md",
+      "cart.md",
+      "catalog.md",
+      "checkout.md",
+      "payments.md"
+    ],
+    "materials/M3/project-data/runbooks": [
+      "ab-test-setup.md",
+      "db-seed-and-reset.md",
+      "deploy.md",
+      "feature-flag-toggle.md",
+      "incident-response.md",
+      "local-setup.md"
+    ],
+    "materials/M3/project-data/api": [
+      "auth.md",
+      "orders.md",
+      "products.md",
+      "uploads.md",
+      "users.md"
+    ],
+    "materials/M3/project-data/adrs": [
+      "adr-001-mongodb-vs-postgres.md",
+      "adr-002-redux-vs-context.md",
+      "adr-003-jwt-vs-session.md",
+      "adr-004-paypal-vs-stripe.md",
+      "adr-005-bootstrap-vs-tailwind.md"
+    ],
+    "materials/M3/project-data/pages": [
+      "INDEX.md",
+      "admin-orders.md",
+      "admin-product-edit.md",
+      "admin-products.md",
+      "admin-user-edit.md",
+      "admin-users.md",
+      "cart.md",
+      "home.md",
+      "login.md",
+      "order.md",
+      "payment.md",
+      "place-order.md",
+      "product.md",
+      "profile.md",
+      "register.md",
+      "shipping.md"
+    ],
+    "materials/M3/project-data/incidents": [
+      "i-001-paypal-double-charge.md",
+      "i-002-mongo-connection-pool-exhaustion.md",
+      "i-003-jwt-secret-leak.md"
+    ],
+    "materials/M3/assignment": [
+      "homework-spec.md"
+    ],
+    "materials/M3/guides": [
+      "chunking-strategies-guide-en.md",
+      "chunking-strategies-guide.md",
+      "embedding-models-2026-guide-en.md",
+      "embedding-models-2026-guide.md",
+      "grep-lsp-agents-md-guide-en.md",
+      "grep-lsp-agents-md-guide.md",
+      "mcp-design-principles-en.md",
+      "mcp-design-principles.md",
+      "mcp-vs-cli-vs-skills-decision-framework-en.md",
+      "mcp-vs-cli-vs-skills-decision-framework.md",
+      "vector-db-comparison-2026-en.md",
+      "vector-db-comparison-2026.md"
+    ],
+    "materials/M3/skills": [
+      "confluence",
+      "jira",
+      "notebooklm",
+      "telegram-cli"
+    ],
+    "materials/M3/skills/notebooklm": [
+      "SKILL.md"
+    ],
+    "materials/M3/skills/jira": [
+      "SKILL.md",
+      "references"
+    ],
+    "materials/M3/skills/confluence": [
+      "SKILL.md",
+      "references"
+    ],
+    "materials/M3/skills/telegram-cli": [
+      "SKILL.md",
+      "references"
+    ],
+    "materials/M4": [
+      "README.md",
+      "agents",
+      "anti-slop-supplement.md",
+      "cheatsheets",
+      "design-system-pack-example",
+      "examples",
+      "guides",
+      "homework-spec.md",
+      "prompts",
+      "templates"
+    ],
+    "materials/M4/agents": [
+      "README.md",
+      "accessibility-expert",
+      "frontend-developer",
+      "mobile-ui-specialist",
+      "shadcn-component-researcher",
+      "shadcn-components",
+      "shadcn-implementation-builder",
+      "shadcn-quick-helper",
+      "shadcn-requirements-analyzer",
+      "ux-designer"
+    ],
+    "materials/M4/agents/frontend-developer": [
+      "prompt.md"
+    ],
+    "materials/M4/agents/ux-designer": [
+      "prompt.md"
+    ],
+    "materials/M4/agents/shadcn-components": [
+      "README.md",
+      "components.json"
+    ],
+    "materials/M4/agents/shadcn-implementation-builder": [
+      "prompt.md"
+    ],
+    "materials/M4/agents/shadcn-component-researcher": [
+      "library-rule-example.mdc",
+      "prompt.md"
+    ],
+    "materials/M4/agents/shadcn-requirements-analyzer": [
+      "prompt.md"
+    ],
+    "materials/M4/agents/accessibility-expert": [
+      "prompt.md"
+    ],
+    "materials/M4/agents/mobile-ui-specialist": [
+      "prompt.md"
+    ],
+    "materials/M4/agents/shadcn-quick-helper": [
+      "prompt.md"
+    ],
+    "materials/M4/design-system-pack-example": [
+      "README.md",
+      "design-system.css",
+      "design-system.json",
+      "design-system.md"
+    ],
+    "materials/M4/guides": [
+      "component-vs-custom.md",
+      "design-md-as-2026-standard.md",
+      "export-design-md-from-stitch.md",
+      "images",
+      "milestone-clear-pattern.md",
+      "pixel-perfect-verification.md",
+      "shadcn-pipeline.md",
+      "tools-landscape-2026.md"
+    ],
+    "materials/M4/guides/images": [
+      "stitch-export-design-md.png"
+    ],
+    "materials/M4/examples": [
+      "design-tokens-extraction-walkthrough.md"
+    ],
+    "materials/M4/prompts": [
+      "anti-ai-slop-guards.md",
+      "ascii-wireframe-lock.md",
+      "lovable-bring-your-vibe.md",
+      "pixel-perfect-subagent.md",
+      "reverse-design-extract.md",
+      "screenshot-fix-loop.md",
+      "shadcn-component-mapping.md",
+      "shadcn-final-implementation.md",
+      "shadcn-ux-structure-plan.md",
+      "ux-research-question-burst.md"
+    ],
+    "materials/M4/templates": [
+      "DESIGN_SYSTEM-luxury-serif.md",
+      "DESIGN_SYSTEM-minimal-tech.md",
+      "DESIGN_SYSTEM.md",
+      "claude-md-with-design-ref.md",
+      "globals.css"
+    ],
+    "materials/M4/cheatsheets": [
+      "10-vibecoding-best-practices.md",
+      "12-signs-of-ai-look.md",
+      "pre-flight-checklist.md",
+      "prompt-kit-5-templates.md"
     ],
     "frontend": [
       ".env",
@@ -209,6 +496,7 @@
       "userConstants.js"
     ],
     "frontend/src/screens": [
+      "AIRouterDashboardScreen.js",
       "CartScreen.js",
       "FeatureDashboardScreen.js",
       "FeatureFlagListScreen.js",
@@ -229,6 +517,7 @@
     ],
     "frontend/src/components": [
       "AutoPilotControls.jsx",
+      "ChatWidget.js",
       "CheckoutSteps.js",
       "Footer.js",
       "FormContainer.js",
@@ -262,6 +551,7 @@
     ],
     "n8n-data": [
       "config",
+      "crash.journal",
       "database.sqlite",
       "database.sqlite-shm",
       "database.sqlite-wal",
@@ -278,227 +568,11 @@
     ],
     "n8n-data/workflows": [],
     "n8n-data/storage": [],
-    "homework-m6": [
-      "stage1-code-review",
-      "stage2-fix-top3",
-      "stage3-living-docs",
-      "stage4-tests-agent"
-    ],
-    "homework-m6/stage4-tests-agent": [],
-    "homework-m6/stage2-fix-top3": [
-      "fix-1-unauthenticated-endpoints.md",
-      "fix-2-route-ordering-bug.md",
-      "fix-3-client-supplied-prices.md",
-      "tests"
-    ],
-    "homework-m6/stage2-fix-top3/tests": [],
-    "homework-m6/stage3-living-docs": [
-      "00-plan.md",
-      "docs-archived",
-      "docs-audit.md",
-      "docs-new",
-      "specs"
-    ],
-    "homework-m6/stage3-living-docs/specs": [
-      "backend-spec.md",
-      "frontend-spec.md",
-      "mcp-servers-spec.md",
-      "pipeline-n8n-spec.md"
-    ],
-    "homework-m6/stage3-living-docs/docs-archived": [
-      "FINDINGS.md",
-      "bug_report.md",
-      "dev-history.md",
-      "features-analysis-ru.md",
-      "i-001-paypal-double-charge.md",
-      "i-002-mongo-connection-pool-exhaustion.md",
-      "i-003-jwt-secret-leak.md",
-      "report.md"
-    ],
-    "homework-m6/stage3-living-docs/docs-new": [
-      "README.md",
-      "adrs",
-      "api",
-      "architecture",
-      "best-practices.md",
-      "chunking-spec.md",
-      "chunks.jsonl",
-      "feature-flags-spec.md",
-      "features",
-      "features.json",
-      "glossary.md",
-      "pages",
-      "runbooks",
-      "specs"
-    ],
-    "homework-m6/stage3-living-docs/docs-new/specs": [
-      "backend-spec.md",
-      "frontend-spec.md",
-      "mcp-servers-spec.md",
-      "pipeline-n8n-spec.md"
-    ],
-    "homework-m6/stage3-living-docs/docs-new/features": [
-      "admin.md",
-      "auth.md",
-      "cart.md",
-      "catalog.md",
-      "checkout.md",
-      "payments.md"
-    ],
-    "homework-m6/stage3-living-docs/docs-new/runbooks": [
-      "ab-test-setup.md",
-      "db-seed-and-reset.md",
-      "deploy.md",
-      "incident-response.md",
-      "local-setup.md"
-    ],
-    "homework-m6/stage3-living-docs/docs-new/architecture": [],
-    "homework-m6/stage3-living-docs/docs-new/api": [
-      "auth.md",
-      "orders.md",
-      "products.md",
-      "uploads.md",
-      "users.md"
-    ],
-    "homework-m6/stage3-living-docs/docs-new/adrs": [
-      "adr-001-mongodb-vs-postgres.md",
-      "adr-002-redux-vs-context.md",
-      "adr-003-jwt-vs-session.md",
-      "adr-004-paypal-vs-stripe.md",
-      "adr-005-bootstrap-vs-tailwind.md"
-    ],
-    "homework-m6/stage3-living-docs/docs-new/pages": [
-      "INDEX.md",
-      "admin-orders.md",
-      "admin-product-edit.md",
-      "admin-products.md",
-      "admin-user-edit.md",
-      "admin-users.md",
-      "cart.md",
-      "home.md",
-      "login.md",
-      "order.md",
-      "payment.md",
-      "place-order.md",
-      "product.md",
-      "profile.md",
-      "register.md",
-      "shipping.md"
-    ],
-    "homework-m6/stage1-code-review": [
-      "architecture-findings.jsonl",
-      "architecture-review.md",
-      "performance-findings.jsonl",
-      "performance-review.md",
-      "security-findings.jsonl",
-      "security-review.md",
-      "synthesis.md"
-    ],
     "simulators": [
       "logs.json",
       "simulate_wf1.py",
       "threshold_test.py",
       "traffic_simulator.py"
-    ],
-    "M4-materials": [
-      "README.md",
-      "agents",
-      "anti-slop-supplement.md",
-      "cheatsheets",
-      "design-system-pack-example",
-      "examples",
-      "guides",
-      "homework-spec.md",
-      "prompts",
-      "templates"
-    ],
-    "M4-materials/agents": [
-      "README.md",
-      "accessibility-expert",
-      "frontend-developer",
-      "mobile-ui-specialist",
-      "shadcn-component-researcher",
-      "shadcn-components",
-      "shadcn-implementation-builder",
-      "shadcn-quick-helper",
-      "shadcn-requirements-analyzer",
-      "ux-designer"
-    ],
-    "M4-materials/agents/frontend-developer": [
-      "prompt.md"
-    ],
-    "M4-materials/agents/ux-designer": [
-      "prompt.md"
-    ],
-    "M4-materials/agents/shadcn-components": [
-      "README.md",
-      "components.json"
-    ],
-    "M4-materials/agents/shadcn-implementation-builder": [
-      "prompt.md"
-    ],
-    "M4-materials/agents/shadcn-component-researcher": [
-      "library-rule-example.mdc",
-      "prompt.md"
-    ],
-    "M4-materials/agents/shadcn-requirements-analyzer": [
-      "prompt.md"
-    ],
-    "M4-materials/agents/accessibility-expert": [
-      "prompt.md"
-    ],
-    "M4-materials/agents/mobile-ui-specialist": [
-      "prompt.md"
-    ],
-    "M4-materials/agents/shadcn-quick-helper": [
-      "prompt.md"
-    ],
-    "M4-materials/design-system-pack-example": [
-      "README.md",
-      "design-system.css",
-      "design-system.json",
-      "design-system.md"
-    ],
-    "M4-materials/guides": [
-      "component-vs-custom.md",
-      "design-md-as-2026-standard.md",
-      "export-design-md-from-stitch.md",
-      "images",
-      "milestone-clear-pattern.md",
-      "pixel-perfect-verification.md",
-      "shadcn-pipeline.md",
-      "tools-landscape-2026.md"
-    ],
-    "M4-materials/guides/images": [
-      "stitch-export-design-md.png"
-    ],
-    "M4-materials/examples": [
-      "design-tokens-extraction-walkthrough.md"
-    ],
-    "M4-materials/prompts": [
-      "anti-ai-slop-guards.md",
-      "ascii-wireframe-lock.md",
-      "lovable-bring-your-vibe.md",
-      "pixel-perfect-subagent.md",
-      "reverse-design-extract.md",
-      "screenshot-fix-loop.md",
-      "shadcn-component-mapping.md",
-      "shadcn-final-implementation.md",
-      "shadcn-ux-structure-plan.md",
-      "ux-research-question-burst.md"
-    ],
-    "M4-materials/templates": [
-      "DESIGN_SYSTEM-luxury-serif.md",
-      "DESIGN_SYSTEM-minimal-tech.md",
-      "DESIGN_SYSTEM.md",
-      "claude-md-with-design-ref.md",
-      "globals.css"
-    ],
-    "M4-materials/cheatsheets": [
-      "10-vibecoding-best-practices.md",
-      "12-signs-of-ai-look.md",
-      "pre-flight-checklist.md",
-      "prompt-kit-5-templates.md"
     ],
     "project-data": [
       "adrs",
@@ -619,6 +693,7 @@
       "generateToken.js"
     ],
     "backend/models": [
+      "chatLogModel.js",
       "orderModel.js",
       "productModel.js",
       "userModel.js"
@@ -634,6 +709,7 @@
       "users.js"
     ],
     "backend/routes": [
+      "assistantRoutes.js",
       "autopilotRoutes.js",
       "featureFlagRoutes.js",
       "orderRoutes.js",
@@ -642,67 +718,93 @@
       "userRoutes.js"
     ],
     "docs": [
-      "M6",
       "architecture.md",
       "chunking-spec.md",
       "chunks.jsonl"
     ],
-    "docs/M6": [
-      "6.1-ai-code-review",
-      "6.2-living-documentation",
-      "6.3-legacy-strategies",
-      "6.4-synthetic-testing",
-      "README.md",
-      "homework-spec.md"
+    "homework": [
+      "M5",
+      "M6",
+      "M7"
     ],
-    "docs/M6/6.1-ai-code-review": [
-      "README.md",
-      "claude-code-review-setup.md",
-      "cloud-agent-team",
-      "honest-risks.md",
-      "tools-catalog.md"
+    "homework/M6": [
+      "stage1-code-review",
+      "stage2-fix-top3",
+      "stage3-living-docs",
+      "stage4-tests-agent"
     ],
-    "docs/M6/6.1-ai-code-review/cloud-agent-team": [
-      "README.md",
-      "claude-pr-review.yml"
+    "homework/M6/stage4-tests-agent": [
+      "service-1-tests",
+      "service-2-tests",
+      "test-writer-mate.md"
     ],
-    "docs/M6/6.4-synthetic-testing": [
-      "README.md",
-      "coverage-vs-msi.md",
-      "recipe-ci-cd-layered.md",
-      "recipe-mini-task.md",
-      "tools-landscape.md"
+    "homework/M6/stage4-tests-agent/service-1-tests": [
+      "conftest.py",
+      "test_feature_flags.py"
     ],
-    "docs/M6/6.3-legacy-strategies": [
-      "README.md",
-      "legacy-incidents.md",
-      "recipe-cc-reverse-engineering.md",
-      "recipe-risk-mitigation.md"
+    "homework/M6/stage4-tests-agent/service-2-tests": [
+      "conftest.py",
+      "test_rag_search.py"
     ],
-    "docs/M6/6.2-living-documentation": [
-      "README.md",
-      "agents-md-claude-md-standard.md",
-      "example-hooks",
-      "hooks-reference",
-      "keeping-docs-current.md",
-      "multi-level-docs-stack.md",
-      "numbers-card.md",
-      "project-index.example.json",
-      "recipe-inline-comments.md"
+    "homework/M6/stage2-fix-top3": [
+      "fix-1-unauthenticated-endpoints.md",
+      "fix-2-route-ordering-bug.md",
+      "fix-3-client-supplied-prices.md",
+      "tests"
     ],
-    "docs/M6/6.2-living-documentation/hooks-reference": [
-      "README.md",
-      "examples-gallery.md",
-      "hooks-deep-dive.md"
-    ],
-    "docs/M6/6.2-living-documentation/example-hooks": [
-      "README.md",
-      "settings.example.json",
+    "homework/M6/stage2-fix-top3/tests": [],
+    "homework/M6/stage3-living-docs": [
+      "00-plan.md",
+      "CLAUDE.md",
+      "docs-archived",
+      "docs-audit.md",
+      "docs-new",
+      "project-index.json",
+      "specs",
       "update_project_index.py"
     ],
-    "homework": [
-      "M5"
+    "homework/M6/stage3-living-docs/specs": [
+      "backend-spec.md",
+      "frontend-spec.md",
+      "mcp-servers-spec.md",
+      "pipeline-n8n-spec.md"
     ],
+    "homework/M6/stage3-living-docs/docs-archived": [
+      "FINDINGS.md",
+      "bug_report.md",
+      "dev-history.md",
+      "features-analysis-ru.md",
+      "i-001-paypal-double-charge.md",
+      "i-002-mongo-connection-pool-exhaustion.md",
+      "i-003-jwt-secret-leak.md",
+      "report.md"
+    ],
+    "homework/M6/stage3-living-docs/docs-new": [
+      "README.md",
+      "adrs",
+      "api",
+      "architecture",
+      "best-practices.md",
+      "chunking-spec.md",
+      "chunks.jsonl",
+      "feature-flags-spec.md",
+      "features",
+      "features.json",
+      "glossary.md",
+      "pages",
+      "runbooks",
+      "specs"
+    ],
+    "homework/M6/stage1-code-review": [
+      "architecture-findings.jsonl",
+      "architecture-review.md",
+      "performance-findings.jsonl",
+      "performance-review.md",
+      "security-findings.jsonl",
+      "security-review.md",
+      "synthesis.md"
+    ],
+    "homework/M7": [],
     "homework/M5": [
       "README.md",
       "logs.json",
@@ -729,137 +831,6 @@
       "enrich_160_239.json",
       "enrich_240_319.json",
       "enrich_80_159.json"
-    ],
-    "M3": [
-      "assignment",
-      "guides",
-      "project-data",
-      "skills",
-      "stack-choice.md"
-    ],
-    "M3/project-data": [
-      "adrs",
-      "api",
-      "architecture.md",
-      "best-practices.md",
-      "dev-history.md",
-      "feature-flags-spec.md",
-      "features",
-      "features-analysis-ru.md",
-      "features.json",
-      "glossary.md",
-      "incidents",
-      "pages",
-      "runbooks"
-    ],
-    "M3/project-data/features": [
-      "admin.md",
-      "auth.md",
-      "cart.md",
-      "catalog.md",
-      "checkout.md",
-      "payments.md"
-    ],
-    "M3/project-data/runbooks": [
-      "ab-test-setup.md",
-      "db-seed-and-reset.md",
-      "deploy.md",
-      "feature-flag-toggle.md",
-      "incident-response.md",
-      "local-setup.md"
-    ],
-    "M3/project-data/api": [
-      "auth.md",
-      "orders.md",
-      "products.md",
-      "uploads.md",
-      "users.md"
-    ],
-    "M3/project-data/adrs": [
-      "adr-001-mongodb-vs-postgres.md",
-      "adr-002-redux-vs-context.md",
-      "adr-003-jwt-vs-session.md",
-      "adr-004-paypal-vs-stripe.md",
-      "adr-005-bootstrap-vs-tailwind.md"
-    ],
-    "M3/project-data/pages": [
-      "INDEX.md",
-      "admin-orders.md",
-      "admin-product-edit.md",
-      "admin-products.md",
-      "admin-user-edit.md",
-      "admin-users.md",
-      "cart.md",
-      "home.md",
-      "login.md",
-      "order.md",
-      "payment.md",
-      "place-order.md",
-      "product.md",
-      "profile.md",
-      "register.md",
-      "shipping.md"
-    ],
-    "M3/project-data/incidents": [
-      "i-001-paypal-double-charge.md",
-      "i-002-mongo-connection-pool-exhaustion.md",
-      "i-003-jwt-secret-leak.md"
-    ],
-    "M3/assignment": [
-      "homework-spec.md"
-    ],
-    "M3/guides": [
-      "chunking-strategies-guide-en.md",
-      "chunking-strategies-guide.md",
-      "embedding-models-2026-guide-en.md",
-      "embedding-models-2026-guide.md",
-      "grep-lsp-agents-md-guide-en.md",
-      "grep-lsp-agents-md-guide.md",
-      "mcp-design-principles-en.md",
-      "mcp-design-principles.md",
-      "mcp-vs-cli-vs-skills-decision-framework-en.md",
-      "mcp-vs-cli-vs-skills-decision-framework.md",
-      "vector-db-comparison-2026-en.md",
-      "vector-db-comparison-2026.md"
-    ],
-    "M3/skills": [
-      "confluence",
-      "jira",
-      "notebooklm",
-      "telegram-cli"
-    ],
-    "M3/skills/notebooklm": [
-      "SKILL.md"
-    ],
-    "M3/skills/jira": [
-      "SKILL.md",
-      "references"
-    ],
-    "M3/skills/jira/references": [
-      "create-task-workflow.md",
-      "pull-workflow.md",
-      "push-workflow.md",
-      "scan-workflow.md"
-    ],
-    "M3/skills/confluence": [
-      "SKILL.md",
-      "references"
-    ],
-    "M3/skills/confluence/references": [
-      "publish-workflow.md",
-      "read-workflow.md",
-      "search-workflow.md"
-    ],
-    "M3/skills/telegram-cli": [
-      "SKILL.md",
-      "references"
-    ],
-    "M3/skills/telegram-cli/references": [
-      "agent-patterns.md",
-      "authentication.md",
-      "media-handling.md",
-      "message-workflows.md",
-      "output-modes.md"
     ],
     "n8n-workflows": [
       "README.md",
@@ -1918,5 +1889,5 @@
       "workflow-versioning-service.ts"
     ]
   },
-  "last_updated": "2026-06-07T21:38:44.660810+00:00"
+  "last_updated": "2026-06-08T11:51:35.344831+00:00"
 }
