@@ -1,0 +1,1922 @@
+{
+  "name": "proshop_mern",
+  "type": "fullstack-monorepo",
+  "description": "Full-stack eCommerce platform (MERN) with MCP servers, RAG search, feature flags dashboard, and n8n automation",
+  "tech_stack": {
+    "backend": "Node.js 16 + Express 4 + Mongoose 5 + JWT",
+    "frontend": "React 16 + Redux 4 + Thunk + React-Bootstrap + React Router 5",
+    "database": "MongoDB 7 (Docker, localhost:27017, db: proshop)",
+    "mcp-feature-flags": "Python 3 + FastMCP",
+    "mcp-rag-search": "Python 3 + FastMCP + Qdrant + BGE-M3 + sentence-transformers",
+    "automation": "n8n (Docker, localhost:5678)",
+    "vector_db": "Qdrant (Docker, localhost:6333, collection: proshop_chunks)"
+  },
+  "subprojects": {
+    "backend": {
+      "path": "backend/",
+      "description": "Express REST API — products, users, orders, feature flags, file upload, n8n proxy",
+      "entry": "backend/server.js",
+      "tech": "Node.js + Express + Mongoose",
+      "key_paths": {
+        "routes": "backend/routes/",
+        "controllers": "backend/controllers/",
+        "models": "backend/models/",
+        "middleware": "backend/middleware/",
+        "config": "backend/config/"
+      }
+    },
+    "frontend": {
+      "path": "frontend/",
+      "description": "React SPA — product catalog, cart, checkout, admin CRUD, feature flags dashboard",
+      "entry": "frontend/src/index.js",
+      "tech": "React 16 + Redux + React-Bootstrap",
+      "key_paths": {
+        "screens": "frontend/src/screens/",
+        "actions": "frontend/src/actions/",
+        "reducers": "frontend/src/reducers/",
+        "components": "frontend/src/components/",
+        "store": "frontend/src/store.js"
+      }
+    },
+    "mcp-feature-flags": {
+      "path": "mcp-feature-flags/",
+      "description": "Python MCP server — manages feature flags in backend/features.json via FastMCP tools + REST API",
+      "entry": "mcp-feature-flags/server.py",
+      "tech": "Python + FastMCP",
+      "key_paths": {
+        "server": "mcp-feature-flags/server.py",
+        "rest_api": "mcp-feature-flags/rest_api.py",
+        "http_server": "mcp-feature-flags/http_server.py"
+      }
+    },
+    "mcp-rag-search": {
+      "path": "mcp-rag-search/",
+      "description": "Python MCP server — semantic search over project docs using BGE-M3 embeddings + Qdrant",
+      "entry": "mcp-rag-search/server.py",
+      "tech": "Python + FastMCP + Qdrant + BGE-M3",
+      "key_paths": {
+        "server": "mcp-rag-search/server.py"
+      }
+    },
+    "scripts": {
+      "path": "scripts/",
+      "description": "Data pipeline — chunk markdown docs, vectorize with BGE-M3, index into Qdrant, query/search",
+      "entry": "scripts/chunk.py",
+      "tech": "Python + sentence-transformers + Qdrant client",
+      "key_paths": {
+        "chunk": "scripts/chunk.py",
+        "chunk_docs": "scripts/chunk_docs.py",
+        "vectorize": "scripts/vectorize.py",
+        "query": "scripts/query.py",
+        "enrich": "scripts/enrich_chunks.py",
+        "combine": "scripts/combine_chunks.py"
+      }
+    },
+    "n8n-workflows": {
+      "path": "n8n-workflows/",
+      "description": "n8n workflow definitions — WF1 manual feature flag toggle, WF2 scheduled error rate monitor",
+      "entry": "n8n-workflows/wf1-manual-toggle.json",
+      "tech": "n8n JSON workflows",
+      "key_paths": {
+        "wf1": "n8n-workflows/wf1-manual-toggle.json",
+        "wf2": "n8n-workflows/wf2-scheduled-monitor.json"
+      }
+    },
+    "simulators": {
+      "path": "simulators/",
+      "description": "Test simulators — WF1 dispatcher, traffic generator, threshold validator",
+      "entry": "simulators/simulate_wf1.py",
+      "tech": "Python + requests",
+      "key_paths": {
+        "simulate_wf1": "simulators/simulate_wf1.py",
+        "traffic_sim": "simulators/traffic_simulator.py",
+        "threshold_test": "simulators/threshold_test.py"
+      }
+    }
+  },
+  "system_folders": {
+    ".claude/": "Claude Code config — agents/, settings, memory",
+    "project-data/": "Living documentation — ADRs, API specs, features, runbooks, incidents",
+    "docs/": "Additional docs — chunking spec, M6 course materials",
+    "uploads/": "Product image uploads (multer destination)",
+    "homework-m6/": "M6 homework submission — stage1 through stage4"
+  },
+  "root_files": {
+    "CLAUDE.md": "Main agent rules file — conventions, architecture, gotchas",
+    "DESIGN.md": "Design system — CSS variables, spacing scale, font rules",
+    "docker-compose.yml": "MongoDB + n8n containers + MCP server configs",
+    ".mcp.json": "MCP server configuration for Claude Code",
+    "package.json": "Root monorepo scripts (dev, server, client, data:import/destroy)"
+  },
+  "hard_rules": [
+    "ALWAYS read project-index.json FIRST at session start.",
+    "Read CLAUDE.md before modifying any code — it contains critical gotchas (Node v16, .js extensions in imports, port 5001).",
+    "Do not edit frontend/src/bootstrap.min.css — use index.css for overrides.",
+    "Feature flags: use MCP tools (set_feature_state, adjust_traffic_rollout) — never edit backend/features.json directly.",
+    "ES Modules in backend — .js extension required in all imports.",
+    "Route order matters in Express — specific paths before param routes.",
+    "Explanations in Russian, code and comments in English."
+  ],
+  "ai_routing": {
+    "feature_flag_status": "mcp__proshop-feature-flags__get_feature_info or list_features",
+    "feature_flag_change": "mcp__proshop-feature-flags__set_feature_state or adjust_traffic_rollout",
+    "doc_search": "mcp__proshop-rag-search__search_project_docs",
+    "n8n_operations": "mcp__n8n-mcp__* tools (list, create, update workflows)",
+    "product_questions": "search_project_docs first, then grep+read as fallback"
+  },
+  "filesystem_tree": {
+    ".": [
+      ".claude",
+      ".env",
+      ".env.example",
+      ".gitignore",
+      ".mcp.json",
+      "CLAUDE.md",
+      "DESIGN.md",
+      "FINDINGS.md",
+      "M3",
+      "M4-materials",
+      "Procfile",
+      "README.md",
+      "backend",
+      "bug_report.md",
+      "docker-compose.yml",
+      "docs",
+      "frontend",
+      "homework",
+      "homework-m6",
+      "mcp-feature-flags",
+      "mcp-rag-search",
+      "n8n-data",
+      "n8n-mcp",
+      "n8n-workflows",
+      "package-lock.json",
+      "package.json",
+      "project-data",
+      "project-index.json",
+      "report.md",
+      "scripts",
+      "simulators",
+      "start-all.sh",
+      "uploads"
+    ],
+    "frontend": [
+      ".env",
+      ".env.example",
+      "README.md",
+      "package-lock.json",
+      "package.json",
+      "public",
+      "src"
+    ],
+    "frontend/public": [
+      "favicon.ico",
+      "images",
+      "index.html",
+      "logo192.png",
+      "logo512.png",
+      "manifest.json",
+      "robots.txt"
+    ],
+    "frontend/public/images": [
+      "airpods.jpg",
+      "alexa.jpg",
+      "camera.jpg",
+      "mouse.jpg",
+      "phone.jpg",
+      "playstation.jpg",
+      "sample.jpg"
+    ],
+    "frontend/src": [
+      "App.js",
+      "actions",
+      "bootstrap.min.css",
+      "components",
+      "constants",
+      "index.css",
+      "index.js",
+      "reducers",
+      "screens",
+      "serviceWorker.js",
+      "setupProxy.js",
+      "store.js"
+    ],
+    "frontend/src/constants": [
+      "cartConstants.js",
+      "featureFlagConstants.js",
+      "orderConstants.js",
+      "productConstants.js",
+      "userConstants.js"
+    ],
+    "frontend/src/screens": [
+      "CartScreen.js",
+      "FeatureDashboardScreen.js",
+      "FeatureFlagListScreen.js",
+      "HomeScreen.js",
+      "LoginScreen.js",
+      "OrderListScreen.js",
+      "OrderScreen.js",
+      "PaymentScreen.js",
+      "PlaceOrderScreen.js",
+      "ProductEditScreen.js",
+      "ProductListScreen.js",
+      "ProductScreen.js",
+      "ProfileScreen.js",
+      "RegisterScreen.js",
+      "ShippingScreen.js",
+      "UserEditScreen.js",
+      "UserListScreen.js"
+    ],
+    "frontend/src/components": [
+      "AutoPilotControls.jsx",
+      "CheckoutSteps.js",
+      "Footer.js",
+      "FormContainer.js",
+      "Header.js",
+      "Loader.js",
+      "Message.js",
+      "Meta.js",
+      "Paginate.js",
+      "Product.js",
+      "ProductCarousel.js",
+      "Rating.js",
+      "SearchBox.js"
+    ],
+    "frontend/src/actions": [
+      "cartActions.js",
+      "featureFlagActions.js",
+      "orderActions.js",
+      "productActions.js",
+      "userActions.js"
+    ],
+    "frontend/src/reducers": [
+      "cartReducers.js",
+      "featureFlagReducers.js",
+      "orderReducers.js",
+      "productReducers.js",
+      "userReducers.js"
+    ],
+    "mcp-rag-search": [
+      "requirements.txt",
+      "server.py"
+    ],
+    "n8n-data": [
+      "config",
+      "database.sqlite",
+      "database.sqlite-shm",
+      "database.sqlite-wal",
+      "n8nEventLog-1.log",
+      "n8nEventLog-2.log",
+      "n8nEventLog-3.log",
+      "n8nEventLog.log",
+      "nodes",
+      "storage",
+      "workflows"
+    ],
+    "n8n-data/nodes": [
+      "package.json"
+    ],
+    "n8n-data/workflows": [],
+    "n8n-data/storage": [],
+    "homework-m6": [
+      "stage1-code-review",
+      "stage2-fix-top3",
+      "stage3-living-docs",
+      "stage4-tests-agent"
+    ],
+    "homework-m6/stage4-tests-agent": [],
+    "homework-m6/stage2-fix-top3": [
+      "fix-1-unauthenticated-endpoints.md",
+      "fix-2-route-ordering-bug.md",
+      "fix-3-client-supplied-prices.md",
+      "tests"
+    ],
+    "homework-m6/stage2-fix-top3/tests": [],
+    "homework-m6/stage3-living-docs": [
+      "00-plan.md",
+      "docs-archived",
+      "docs-audit.md",
+      "docs-new",
+      "specs"
+    ],
+    "homework-m6/stage3-living-docs/specs": [
+      "backend-spec.md",
+      "frontend-spec.md",
+      "mcp-servers-spec.md",
+      "pipeline-n8n-spec.md"
+    ],
+    "homework-m6/stage3-living-docs/docs-archived": [
+      "FINDINGS.md",
+      "bug_report.md",
+      "dev-history.md",
+      "features-analysis-ru.md",
+      "i-001-paypal-double-charge.md",
+      "i-002-mongo-connection-pool-exhaustion.md",
+      "i-003-jwt-secret-leak.md",
+      "report.md"
+    ],
+    "homework-m6/stage3-living-docs/docs-new": [
+      "README.md",
+      "adrs",
+      "api",
+      "architecture",
+      "best-practices.md",
+      "chunking-spec.md",
+      "chunks.jsonl",
+      "feature-flags-spec.md",
+      "features",
+      "features.json",
+      "glossary.md",
+      "pages",
+      "runbooks",
+      "specs"
+    ],
+    "homework-m6/stage3-living-docs/docs-new/specs": [
+      "backend-spec.md",
+      "frontend-spec.md",
+      "mcp-servers-spec.md",
+      "pipeline-n8n-spec.md"
+    ],
+    "homework-m6/stage3-living-docs/docs-new/features": [
+      "admin.md",
+      "auth.md",
+      "cart.md",
+      "catalog.md",
+      "checkout.md",
+      "payments.md"
+    ],
+    "homework-m6/stage3-living-docs/docs-new/runbooks": [
+      "ab-test-setup.md",
+      "db-seed-and-reset.md",
+      "deploy.md",
+      "incident-response.md",
+      "local-setup.md"
+    ],
+    "homework-m6/stage3-living-docs/docs-new/architecture": [],
+    "homework-m6/stage3-living-docs/docs-new/api": [
+      "auth.md",
+      "orders.md",
+      "products.md",
+      "uploads.md",
+      "users.md"
+    ],
+    "homework-m6/stage3-living-docs/docs-new/adrs": [
+      "adr-001-mongodb-vs-postgres.md",
+      "adr-002-redux-vs-context.md",
+      "adr-003-jwt-vs-session.md",
+      "adr-004-paypal-vs-stripe.md",
+      "adr-005-bootstrap-vs-tailwind.md"
+    ],
+    "homework-m6/stage3-living-docs/docs-new/pages": [
+      "INDEX.md",
+      "admin-orders.md",
+      "admin-product-edit.md",
+      "admin-products.md",
+      "admin-user-edit.md",
+      "admin-users.md",
+      "cart.md",
+      "home.md",
+      "login.md",
+      "order.md",
+      "payment.md",
+      "place-order.md",
+      "product.md",
+      "profile.md",
+      "register.md",
+      "shipping.md"
+    ],
+    "homework-m6/stage1-code-review": [
+      "architecture-findings.jsonl",
+      "architecture-review.md",
+      "performance-findings.jsonl",
+      "performance-review.md",
+      "security-findings.jsonl",
+      "security-review.md",
+      "synthesis.md"
+    ],
+    "simulators": [
+      "logs.json",
+      "simulate_wf1.py",
+      "threshold_test.py",
+      "traffic_simulator.py"
+    ],
+    "M4-materials": [
+      "README.md",
+      "agents",
+      "anti-slop-supplement.md",
+      "cheatsheets",
+      "design-system-pack-example",
+      "examples",
+      "guides",
+      "homework-spec.md",
+      "prompts",
+      "templates"
+    ],
+    "M4-materials/agents": [
+      "README.md",
+      "accessibility-expert",
+      "frontend-developer",
+      "mobile-ui-specialist",
+      "shadcn-component-researcher",
+      "shadcn-components",
+      "shadcn-implementation-builder",
+      "shadcn-quick-helper",
+      "shadcn-requirements-analyzer",
+      "ux-designer"
+    ],
+    "M4-materials/agents/frontend-developer": [
+      "prompt.md"
+    ],
+    "M4-materials/agents/ux-designer": [
+      "prompt.md"
+    ],
+    "M4-materials/agents/shadcn-components": [
+      "README.md",
+      "components.json"
+    ],
+    "M4-materials/agents/shadcn-implementation-builder": [
+      "prompt.md"
+    ],
+    "M4-materials/agents/shadcn-component-researcher": [
+      "library-rule-example.mdc",
+      "prompt.md"
+    ],
+    "M4-materials/agents/shadcn-requirements-analyzer": [
+      "prompt.md"
+    ],
+    "M4-materials/agents/accessibility-expert": [
+      "prompt.md"
+    ],
+    "M4-materials/agents/mobile-ui-specialist": [
+      "prompt.md"
+    ],
+    "M4-materials/agents/shadcn-quick-helper": [
+      "prompt.md"
+    ],
+    "M4-materials/design-system-pack-example": [
+      "README.md",
+      "design-system.css",
+      "design-system.json",
+      "design-system.md"
+    ],
+    "M4-materials/guides": [
+      "component-vs-custom.md",
+      "design-md-as-2026-standard.md",
+      "export-design-md-from-stitch.md",
+      "images",
+      "milestone-clear-pattern.md",
+      "pixel-perfect-verification.md",
+      "shadcn-pipeline.md",
+      "tools-landscape-2026.md"
+    ],
+    "M4-materials/guides/images": [
+      "stitch-export-design-md.png"
+    ],
+    "M4-materials/examples": [
+      "design-tokens-extraction-walkthrough.md"
+    ],
+    "M4-materials/prompts": [
+      "anti-ai-slop-guards.md",
+      "ascii-wireframe-lock.md",
+      "lovable-bring-your-vibe.md",
+      "pixel-perfect-subagent.md",
+      "reverse-design-extract.md",
+      "screenshot-fix-loop.md",
+      "shadcn-component-mapping.md",
+      "shadcn-final-implementation.md",
+      "shadcn-ux-structure-plan.md",
+      "ux-research-question-burst.md"
+    ],
+    "M4-materials/templates": [
+      "DESIGN_SYSTEM-luxury-serif.md",
+      "DESIGN_SYSTEM-minimal-tech.md",
+      "DESIGN_SYSTEM.md",
+      "claude-md-with-design-ref.md",
+      "globals.css"
+    ],
+    "M4-materials/cheatsheets": [
+      "10-vibecoding-best-practices.md",
+      "12-signs-of-ai-look.md",
+      "pre-flight-checklist.md",
+      "prompt-kit-5-templates.md"
+    ],
+    "project-data": [
+      "adrs",
+      "api",
+      "architecture.md",
+      "best-practices.md",
+      "dev-history.md",
+      "feature-flags-spec.md",
+      "features",
+      "features-analysis-ru.md",
+      "features.json",
+      "glossary.md",
+      "incidents",
+      "pages",
+      "runbooks"
+    ],
+    "project-data/features": [
+      "admin.md",
+      "auth.md",
+      "cart.md",
+      "catalog.md",
+      "checkout.md",
+      "payments.md"
+    ],
+    "project-data/runbooks": [
+      "ab-test-setup.md",
+      "db-seed-and-reset.md",
+      "deploy.md",
+      "feature-flag-toggle.md",
+      "incident-response.md",
+      "local-setup.md"
+    ],
+    "project-data/api": [
+      "auth.md",
+      "orders.md",
+      "products.md",
+      "uploads.md",
+      "users.md"
+    ],
+    "project-data/adrs": [
+      "adr-001-mongodb-vs-postgres.md",
+      "adr-002-redux-vs-context.md",
+      "adr-003-jwt-vs-session.md",
+      "adr-004-paypal-vs-stripe.md",
+      "adr-005-bootstrap-vs-tailwind.md"
+    ],
+    "project-data/pages": [
+      "INDEX.md",
+      "admin-orders.md",
+      "admin-product-edit.md",
+      "admin-products.md",
+      "admin-user-edit.md",
+      "admin-users.md",
+      "cart.md",
+      "home.md",
+      "login.md",
+      "order.md",
+      "payment.md",
+      "place-order.md",
+      "product.md",
+      "profile.md",
+      "register.md",
+      "shipping.md"
+    ],
+    "project-data/incidents": [
+      "i-001-paypal-double-charge.md",
+      "i-002-mongo-connection-pool-exhaustion.md",
+      "i-003-jwt-secret-leak.md"
+    ],
+    ".claude": [
+      "agents",
+      "scripts",
+      "settings.json",
+      "settings.local.json"
+    ],
+    ".claude/agents": [
+      "architecture-mate.md",
+      "legacy-auditor-mate.md",
+      "n8n-deploy-via-mcp.md",
+      "n8n-requirements-orchestrator.md",
+      "n8n-workflow-builder.md",
+      "performance-mate.md",
+      "security-mate.md",
+      "templates",
+      "test-writer-mate.md"
+    ],
+    ".claude/agents/templates": [
+      "docs-audit.template.md"
+    ],
+    ".claude/scripts": [
+      "update_project_index.py"
+    ],
+    "uploads": [
+      "Screen Shot 2020-09-29 at 5.50.52 PM.png",
+      "file.txt"
+    ],
+    "backend": [
+      "config",
+      "controllers",
+      "data",
+      "feature-descriptions.json",
+      "features.json",
+      "middleware",
+      "models",
+      "routes",
+      "seeder.js",
+      "server.js",
+      "utils"
+    ],
+    "backend/middleware": [
+      "authMiddleware.js",
+      "errorMiddleware.js"
+    ],
+    "backend/config": [
+      "db.js"
+    ],
+    "backend/utils": [
+      "generateToken.js"
+    ],
+    "backend/models": [
+      "orderModel.js",
+      "productModel.js",
+      "userModel.js"
+    ],
+    "backend/controllers": [
+      "featureFlagController.js",
+      "orderController.js",
+      "productController.js",
+      "userController.js"
+    ],
+    "backend/data": [
+      "products.js",
+      "users.js"
+    ],
+    "backend/routes": [
+      "autopilotRoutes.js",
+      "featureFlagRoutes.js",
+      "orderRoutes.js",
+      "productRoutes.js",
+      "uploadRoutes.js",
+      "userRoutes.js"
+    ],
+    "docs": [
+      "M6",
+      "architecture.md",
+      "chunking-spec.md",
+      "chunks.jsonl"
+    ],
+    "docs/M6": [
+      "6.1-ai-code-review",
+      "6.2-living-documentation",
+      "6.3-legacy-strategies",
+      "6.4-synthetic-testing",
+      "README.md",
+      "homework-spec.md"
+    ],
+    "docs/M6/6.1-ai-code-review": [
+      "README.md",
+      "claude-code-review-setup.md",
+      "cloud-agent-team",
+      "honest-risks.md",
+      "tools-catalog.md"
+    ],
+    "docs/M6/6.1-ai-code-review/cloud-agent-team": [
+      "README.md",
+      "claude-pr-review.yml"
+    ],
+    "docs/M6/6.4-synthetic-testing": [
+      "README.md",
+      "coverage-vs-msi.md",
+      "recipe-ci-cd-layered.md",
+      "recipe-mini-task.md",
+      "tools-landscape.md"
+    ],
+    "docs/M6/6.3-legacy-strategies": [
+      "README.md",
+      "legacy-incidents.md",
+      "recipe-cc-reverse-engineering.md",
+      "recipe-risk-mitigation.md"
+    ],
+    "docs/M6/6.2-living-documentation": [
+      "README.md",
+      "agents-md-claude-md-standard.md",
+      "example-hooks",
+      "hooks-reference",
+      "keeping-docs-current.md",
+      "multi-level-docs-stack.md",
+      "numbers-card.md",
+      "project-index.example.json",
+      "recipe-inline-comments.md"
+    ],
+    "docs/M6/6.2-living-documentation/hooks-reference": [
+      "README.md",
+      "examples-gallery.md",
+      "hooks-deep-dive.md"
+    ],
+    "docs/M6/6.2-living-documentation/example-hooks": [
+      "README.md",
+      "settings.example.json",
+      "update_project_index.py"
+    ],
+    "homework": [
+      "M5"
+    ],
+    "homework/M5": [
+      "README.md",
+      "logs.json",
+      "run_simulate_wf1.sh",
+      "run_simulate_wf2.sh",
+      "simulate_wf1.py",
+      "simulate_wf2.py",
+      "wf1-manual-trigger-cc.json",
+      "wf1-manual-trigger.json",
+      "wf1-spec-cc.yaml",
+      "wf2-scheduled-monitor.json"
+    ],
+    "scripts": [
+      "chunk.py",
+      "chunk_docs.py",
+      "combine_chunks.py",
+      "enrich_chunks.py",
+      "query.py",
+      "tmp",
+      "vectorize.py"
+    ],
+    "scripts/tmp": [
+      "enrich_0_79.json",
+      "enrich_160_239.json",
+      "enrich_240_319.json",
+      "enrich_80_159.json"
+    ],
+    "M3": [
+      "assignment",
+      "guides",
+      "project-data",
+      "skills",
+      "stack-choice.md"
+    ],
+    "M3/project-data": [
+      "adrs",
+      "api",
+      "architecture.md",
+      "best-practices.md",
+      "dev-history.md",
+      "feature-flags-spec.md",
+      "features",
+      "features-analysis-ru.md",
+      "features.json",
+      "glossary.md",
+      "incidents",
+      "pages",
+      "runbooks"
+    ],
+    "M3/project-data/features": [
+      "admin.md",
+      "auth.md",
+      "cart.md",
+      "catalog.md",
+      "checkout.md",
+      "payments.md"
+    ],
+    "M3/project-data/runbooks": [
+      "ab-test-setup.md",
+      "db-seed-and-reset.md",
+      "deploy.md",
+      "feature-flag-toggle.md",
+      "incident-response.md",
+      "local-setup.md"
+    ],
+    "M3/project-data/api": [
+      "auth.md",
+      "orders.md",
+      "products.md",
+      "uploads.md",
+      "users.md"
+    ],
+    "M3/project-data/adrs": [
+      "adr-001-mongodb-vs-postgres.md",
+      "adr-002-redux-vs-context.md",
+      "adr-003-jwt-vs-session.md",
+      "adr-004-paypal-vs-stripe.md",
+      "adr-005-bootstrap-vs-tailwind.md"
+    ],
+    "M3/project-data/pages": [
+      "INDEX.md",
+      "admin-orders.md",
+      "admin-product-edit.md",
+      "admin-products.md",
+      "admin-user-edit.md",
+      "admin-users.md",
+      "cart.md",
+      "home.md",
+      "login.md",
+      "order.md",
+      "payment.md",
+      "place-order.md",
+      "product.md",
+      "profile.md",
+      "register.md",
+      "shipping.md"
+    ],
+    "M3/project-data/incidents": [
+      "i-001-paypal-double-charge.md",
+      "i-002-mongo-connection-pool-exhaustion.md",
+      "i-003-jwt-secret-leak.md"
+    ],
+    "M3/assignment": [
+      "homework-spec.md"
+    ],
+    "M3/guides": [
+      "chunking-strategies-guide-en.md",
+      "chunking-strategies-guide.md",
+      "embedding-models-2026-guide-en.md",
+      "embedding-models-2026-guide.md",
+      "grep-lsp-agents-md-guide-en.md",
+      "grep-lsp-agents-md-guide.md",
+      "mcp-design-principles-en.md",
+      "mcp-design-principles.md",
+      "mcp-vs-cli-vs-skills-decision-framework-en.md",
+      "mcp-vs-cli-vs-skills-decision-framework.md",
+      "vector-db-comparison-2026-en.md",
+      "vector-db-comparison-2026.md"
+    ],
+    "M3/skills": [
+      "confluence",
+      "jira",
+      "notebooklm",
+      "telegram-cli"
+    ],
+    "M3/skills/notebooklm": [
+      "SKILL.md"
+    ],
+    "M3/skills/jira": [
+      "SKILL.md",
+      "references"
+    ],
+    "M3/skills/jira/references": [
+      "create-task-workflow.md",
+      "pull-workflow.md",
+      "push-workflow.md",
+      "scan-workflow.md"
+    ],
+    "M3/skills/confluence": [
+      "SKILL.md",
+      "references"
+    ],
+    "M3/skills/confluence/references": [
+      "publish-workflow.md",
+      "read-workflow.md",
+      "search-workflow.md"
+    ],
+    "M3/skills/telegram-cli": [
+      "SKILL.md",
+      "references"
+    ],
+    "M3/skills/telegram-cli/references": [
+      "agent-patterns.md",
+      "authentication.md",
+      "media-handling.md",
+      "message-workflows.md",
+      "output-modes.md"
+    ],
+    "n8n-workflows": [
+      "README.md",
+      "wf1-manual-toggle.json",
+      "wf2-scheduled-monitor.json"
+    ],
+    "mcp-feature-flags": [
+      "http_server.py",
+      "requirements.txt",
+      "rest_api.py",
+      "server.py"
+    ],
+    "n8n-mcp": [
+      ".claude",
+      ".dockerignore",
+      ".env.docker",
+      ".env.example",
+      ".env.n8n.example",
+      ".env.test",
+      ".env.test.example",
+      ".gitattributes",
+      ".github",
+      ".gitignore",
+      ".husky",
+      ".npmignore",
+      ".secretlintignore",
+      ".secretlintrc.json",
+      "ANALYSIS_QUICK_REFERENCE.md",
+      "ATTRIBUTION.md",
+      "CHANGELOG.md",
+      "CLAUDE.md",
+      "CONTRIBUTING.md",
+      "Dockerfile",
+      "Dockerfile.railway",
+      "Dockerfile.test",
+      "LICENSE",
+      "MEMORY_N8N_UPDATE.md",
+      "MEMORY_TEMPLATE_UPDATE.md",
+      "N8N_HTTP_STREAMABLE_SETUP.md",
+      "P0-R3-TEST-PLAN.md",
+      "PRIVACY.md",
+      "README.md",
+      "README_ANALYSIS.md",
+      "SECURITY.md",
+      "_config.yml",
+      "codecov.yml",
+      "coverage.json",
+      "data",
+      "deploy",
+      "docker",
+      "docker-compose.buildkit.yml",
+      "docker-compose.extract.yml",
+      "docker-compose.n8n.yml",
+      "docker-compose.override.yml.example",
+      "docker-compose.test-n8n.yml",
+      "docker-compose.yml",
+      "docs",
+      "examples",
+      "fetch_log.txt",
+      "monitor_fetch.sh",
+      "n8n-nodes.db",
+      "package-lock.json",
+      "package.json",
+      "package.runtime.json",
+      "railway.json",
+      "renovate.json",
+      "scripts",
+      "src",
+      "test-output.txt",
+      "test-reinit-fix.sh",
+      "tests",
+      "thumbnail.png",
+      "tsconfig.build.json",
+      "tsconfig.json",
+      "types",
+      "ui-apps",
+      "versioned-nodes.md",
+      "vitest.config.integration.ts",
+      "vitest.config.ts"
+    ],
+    "n8n-mcp/.husky": [
+      "_",
+      "pre-commit"
+    ],
+    "n8n-mcp/.husky/_": [
+      ".gitignore",
+      "applypatch-msg",
+      "commit-msg",
+      "h",
+      "husky.sh",
+      "post-applypatch",
+      "post-checkout",
+      "post-commit",
+      "post-merge",
+      "post-rewrite",
+      "pre-applypatch",
+      "pre-auto-gc",
+      "pre-commit",
+      "pre-merge-commit",
+      "pre-push",
+      "pre-rebase",
+      "prepare-commit-msg"
+    ],
+    "n8n-mcp/docker": [
+      "README.md",
+      "docker-entrypoint.sh",
+      "n8n-mcp",
+      "parse-config.js"
+    ],
+    "n8n-mcp/types": [
+      "mcp.d.ts",
+      "test-env.d.ts"
+    ],
+    "n8n-mcp/deploy": [
+      "quick-deploy-n8n.sh"
+    ],
+    "n8n-mcp/tests": [
+      "MOCKING_STRATEGY.md",
+      "__snapshots__",
+      "auth.test.ts",
+      "bridge.test.ts",
+      "comprehensive-extraction-test.js",
+      "data",
+      "debug-slack-doc.js",
+      "demo-enhanced-documentation.js",
+      "docker-tests-README.md",
+      "error-handler.test.ts",
+      "extracted-nodes-db",
+      "factories",
+      "fixtures",
+      "helpers",
+      "http-server-auth.test.ts",
+      "integration",
+      "logger.test.ts",
+      "mocks",
+      "node-storage-export.json",
+      "setup",
+      "test-database-extraction.js",
+      "test-direct-extraction.js",
+      "test-enhanced-documentation.js",
+      "test-enhanced-integration.js",
+      "test-mcp-extraction.js",
+      "test-mcp-server-extraction.js",
+      "test-mcp-tools-integration.js",
+      "test-node-documentation-service.js",
+      "test-node-list.js",
+      "test-package-info.js",
+      "test-parsing-operations.js",
+      "test-slack-node-complete.js",
+      "test-small-rebuild.js",
+      "test-sqlite-search.js",
+      "test-storage-system.js",
+      "unit",
+      "utils"
+    ],
+    "n8n-mcp/tests/mocks": [
+      "README.md",
+      "n8n-api"
+    ],
+    "n8n-mcp/tests/mocks/n8n-api": [
+      "data",
+      "handlers.ts",
+      "index.ts"
+    ],
+    "n8n-mcp/tests/unit": [
+      "MULTI_TENANT_TEST_COVERAGE.md",
+      "__mocks__",
+      "bin-consistency.test.ts",
+      "community",
+      "constants",
+      "database",
+      "docker",
+      "errors",
+      "flexible-instance-security-advanced.test.ts",
+      "flexible-instance-security.test.ts",
+      "http-server",
+      "http-server-n8n-mode.test.ts",
+      "http-server-session-management.test.ts",
+      "loaders",
+      "mappers",
+      "mcp",
+      "mcp-engine",
+      "monitoring",
+      "multi-tenant-integration.test.ts",
+      "parsers",
+      "scripts",
+      "services",
+      "telemetry",
+      "templates",
+      "triggers",
+      "types",
+      "utils",
+      "validation-fixes.test.ts"
+    ],
+    "n8n-mcp/tests/unit/database": [
+      "README.md",
+      "__mocks__",
+      "node-repository-ai-documentation.test.ts",
+      "node-repository-community.test.ts",
+      "node-repository-core.test.ts",
+      "node-repository-operations.test.ts",
+      "node-repository-outputs.test.ts",
+      "shared-database.test.ts",
+      "template-repository-core.test.ts"
+    ],
+    "n8n-mcp/tests/unit/__mocks__": [
+      "README.md",
+      "n8n-nodes-base.test.ts",
+      "n8n-nodes-base.ts"
+    ],
+    "n8n-mcp/tests/unit/parsers": [
+      "node-parser-outputs.test.ts",
+      "node-parser.test.ts",
+      "property-extractor.test.ts",
+      "simple-parser.test.ts"
+    ],
+    "n8n-mcp/tests/unit/docker": [
+      "config-security.test.ts",
+      "edge-cases.test.ts",
+      "parse-config.test.ts",
+      "serve-command.test.ts"
+    ],
+    "n8n-mcp/tests/unit/types": [
+      "instance-context-coverage.test.ts",
+      "instance-context-multi-tenant.test.ts",
+      "type-structures.test.ts"
+    ],
+    "n8n-mcp/tests/unit/http-server": [
+      "multi-tenant-support.test.ts",
+      "pre-auth-log-redaction.test.ts",
+      "session-persistence.test.ts",
+      "ssrf-gate.test.ts"
+    ],
+    "n8n-mcp/tests/unit/triggers": [
+      "handlers",
+      "trigger-detector.test.ts",
+      "trigger-registry.test.ts"
+    ],
+    "n8n-mcp/tests/unit/constants": [
+      "type-structures.test.ts"
+    ],
+    "n8n-mcp/tests/unit/utils": [
+      "auth-timing-safe.test.ts",
+      "cache-utils.test.ts",
+      "console-manager.test.ts",
+      "database-utils.test.ts",
+      "expression-utils.test.ts",
+      "fixed-collection-validator.test.ts",
+      "n8n-errors.test.ts",
+      "node-classification.test.ts",
+      "node-type-normalizer.test.ts",
+      "node-type-utils.test.ts",
+      "node-utils.test.ts",
+      "redaction.test.ts",
+      "simple-cache-memory-leak-fix.test.ts",
+      "ssrf-protection.test.ts",
+      "template-node-resolver.test.ts",
+      "typeversion.test.ts"
+    ],
+    "n8n-mcp/tests/unit/mcp": [
+      "additional-tools.test.ts",
+      "coerce-stringified-params.test.ts",
+      "disabled-tools-additional.test.ts",
+      "disabled-tools.test.ts",
+      "generate-workflow-tool.test.ts",
+      "get-node-essentials-examples.test.ts",
+      "get-node-unified.test.ts",
+      "get-workflow-mode-dispatch.test.ts",
+      "get-workflow-tool.test.ts",
+      "handlers-deploy-template.test.ts",
+      "handlers-manage-datatable.test.ts",
+      "handlers-n8n-manager.test.ts",
+      "handlers-workflow-diff.test.ts",
+      "lru-cache-behavior.test.ts",
+      "multi-tenant-tool-listing.test.ts.disabled",
+      "parameter-validation.test.ts",
+      "search-nodes-examples.test.ts",
+      "search-nodes-source-filter.test.ts",
+      "server-node-documentation.test.ts",
+      "server-tool-call-redaction.test.ts",
+      "skills",
+      "tools-documentation.test.ts",
+      "tools.test.ts",
+      "ui"
+    ],
+    "n8n-mcp/tests/unit/scripts": [
+      "fetch-templates-extraction.test.ts"
+    ],
+    "n8n-mcp/tests/unit/templates": [
+      "batch-processor.test.ts",
+      "metadata-generator.test.ts",
+      "sequential-processor.test.ts",
+      "template-repository-metadata.test.ts",
+      "template-repository-security.test.ts"
+    ],
+    "n8n-mcp/tests/unit/mappers": [
+      "docs-mapper.test.ts"
+    ],
+    "n8n-mcp/tests/unit/telemetry": [
+      "config-manager.test.ts",
+      "event-validator.test.ts",
+      "mutation-tracker.test.ts",
+      "rate-limiter.test.ts",
+      "telemetry-events.test.ts",
+      "telemetry-manager.test.ts",
+      "telemetry-processing.test.ts",
+      "workflow-sanitizer.test.ts"
+    ],
+    "n8n-mcp/tests/unit/errors": [
+      "validation-service-error.test.ts"
+    ],
+    "n8n-mcp/tests/unit/mcp-engine": [
+      "session-persistence.test.ts"
+    ],
+    "n8n-mcp/tests/unit/monitoring": [
+      "cache-metrics.test.ts"
+    ],
+    "n8n-mcp/tests/unit/community": [
+      "community-node-fetcher.test.ts",
+      "community-node-service.test.ts",
+      "documentation-batch-processor.test.ts"
+    ],
+    "n8n-mcp/tests/unit/loaders": [
+      "node-loader.test.ts"
+    ],
+    "n8n-mcp/tests/unit/services": [
+      "ai-validators.test.ts",
+      "audit-report-builder.test.ts",
+      "breaking-change-detector.test.ts",
+      "confidence-scorer.test.ts",
+      "config-validator-security.test.ts",
+      "config-validator.test.ts",
+      "credential-scanner.test.ts",
+      "debug-validator.test.ts",
+      "enhanced-config-validator.test.ts",
+      "error-execution-processor.test.ts",
+      "example-generator.test.ts",
+      "execution-processor.test.ts",
+      "expression-format-validator.test.ts",
+      "expression-validator-edge-cases.test.ts",
+      "expression-validator.test.ts",
+      "fixed-collection-validation.test.ts",
+      "n8n-api-client.test.ts",
+      "n8n-validation.test.ts",
+      "n8n-version.test.ts",
+      "node-migration-service.test.ts",
+      "node-sanitizer.test.ts",
+      "node-similarity-service.test.ts",
+      "node-specific-validators.test.ts",
+      "node-version-service.test.ts",
+      "operation-similarity-service-comprehensive.test.ts",
+      "operation-similarity-service.test.ts",
+      "post-update-validator.test.ts",
+      "property-dependencies.test.ts",
+      "property-filter-edge-cases.test.ts",
+      "property-filter.test.ts",
+      "resource-similarity-service-comprehensive.test.ts",
+      "resource-similarity-service.test.ts",
+      "task-templates.test.ts",
+      "template-service.test.ts",
+      "type-structure-service.test.ts",
+      "universal-expression-validator.test.ts",
+      "validation-fixes.test.ts",
+      "workflow-auto-fixer-connections.test.ts",
+      "workflow-auto-fixer-tool-variants.test.ts",
+      "workflow-auto-fixer.test.ts",
+      "workflow-diff-engine.test.ts",
+      "workflow-diff-node-rename.test.ts",
+      "workflow-fixed-collection-validation.test.ts",
+      "workflow-security-scanner.test.ts",
+      "workflow-validator-connections.test.ts",
+      "workflow-validator-loops.test.ts",
+      "workflow-validator.test.ts",
+      "workflow-versioning-service.test.ts"
+    ],
+    "n8n-mcp/tests/extracted-nodes-db": [
+      "database-import.json",
+      "extraction-report.json",
+      "insert-nodes.sql",
+      "n8n-nodes-base__Airtable.json",
+      "n8n-nodes-base__Discord.json",
+      "n8n-nodes-base__Function.json",
+      "n8n-nodes-base__HttpRequest.json",
+      "n8n-nodes-base__If.json",
+      "n8n-nodes-base__Slack.json",
+      "n8n-nodes-base__SplitInBatches.json",
+      "n8n-nodes-base__Webhook.json"
+    ],
+    "n8n-mcp/tests/integration": [
+      "ai-validation",
+      "ci",
+      "community",
+      "database",
+      "database-integration.test.ts",
+      "docker",
+      "flexible-instance-config.test.ts",
+      "mcp",
+      "mcp-protocol",
+      "msw-setup.test.ts",
+      "n8n-api",
+      "security",
+      "setup",
+      "telemetry",
+      "templates",
+      "validation",
+      "workflow-creation-node-type-format.test.ts",
+      "workflow-diff"
+    ],
+    "n8n-mcp/tests/integration/database": [
+      "connection-management.test.ts",
+      "empty-database.test.ts",
+      "fts5-search.test.ts",
+      "node-fts5-search.test.ts",
+      "node-repository.test.ts",
+      "performance.test.ts",
+      "sqljs-memory-leak.test.ts",
+      "template-node-configs.test.ts",
+      "template-repository.test.ts",
+      "test-utils.ts",
+      "transactions.test.ts"
+    ],
+    "n8n-mcp/tests/integration/docker": [
+      "docker-config.test.ts",
+      "docker-entrypoint.test.ts",
+      "test-helpers.ts"
+    ],
+    "n8n-mcp/tests/integration/n8n-api": [
+      "executions",
+      "scripts",
+      "system",
+      "test-connection.ts",
+      "types",
+      "utils",
+      "workflows"
+    ],
+    "n8n-mcp/tests/integration/security": [
+      "command-injection-prevention.test.ts"
+    ],
+    "n8n-mcp/tests/integration/ci": [
+      "database-population.test.ts"
+    ],
+    "n8n-mcp/tests/integration/mcp-protocol": [
+      "README.md",
+      "basic-connection.test.ts",
+      "error-handling.test.ts",
+      "performance.test.ts",
+      "protocol-compliance.test.ts",
+      "session-management.test.ts",
+      "test-helpers.ts",
+      "tool-invocation.test.ts",
+      "workflow-error-validation.test.ts"
+    ],
+    "n8n-mcp/tests/integration/setup": [
+      "integration-setup.ts",
+      "msw-test-server.ts"
+    ],
+    "n8n-mcp/tests/integration/mcp": [
+      "stdio-shutdown.test.ts",
+      "template-examples-e2e.test.ts"
+    ],
+    "n8n-mcp/tests/integration/templates": [
+      "metadata-operations.test.ts"
+    ],
+    "n8n-mcp/tests/integration/telemetry": [
+      "docker-user-id-stability.test.ts"
+    ],
+    "n8n-mcp/tests/integration/community": [
+      "community-nodes-integration.test.ts"
+    ],
+    "n8n-mcp/tests/integration/ai-validation": [
+      "README.md",
+      "TEST_REPORT.md",
+      "ai-agent-validation.test.ts",
+      "ai-tool-validation.test.ts",
+      "chat-trigger-validation.test.ts",
+      "e2e-validation.test.ts",
+      "helpers.ts",
+      "llm-chain-validation.test.ts"
+    ],
+    "n8n-mcp/tests/integration/workflow-diff": [
+      "ai-node-connection-validation.test.ts",
+      "node-rename-integration.test.ts"
+    ],
+    "n8n-mcp/tests/integration/validation": [
+      "real-world-structure-validation.test.ts"
+    ],
+    "n8n-mcp/tests/setup": [
+      "TEST_ENV_DOCUMENTATION.md",
+      "global-setup.ts",
+      "msw-setup.ts",
+      "test-env.ts"
+    ],
+    "n8n-mcp/tests/utils": [
+      "README.md",
+      "assertions.ts",
+      "builders",
+      "data-generators.ts",
+      "database-utils.ts",
+      "test-helpers.ts"
+    ],
+    "n8n-mcp/tests/utils/builders": [
+      "workflow.builder.ts"
+    ],
+    "n8n-mcp/tests/factories": [
+      "node-factory.ts",
+      "property-definition-factory.ts"
+    ],
+    "n8n-mcp/tests/fixtures": [
+      ".gitkeep",
+      "database",
+      "factories",
+      "template-configs.ts"
+    ],
+    "n8n-mcp/tests/fixtures/database": [
+      "test-nodes.json"
+    ],
+    "n8n-mcp/tests/fixtures/factories": [
+      "node.factory.ts",
+      "parser-node.factory.ts"
+    ],
+    "n8n-mcp/tests/data": [
+      ".gitkeep"
+    ],
+    "n8n-mcp/tests/helpers": [
+      "env-helpers.ts"
+    ],
+    "n8n-mcp/tests/__snapshots__": [
+      ".gitkeep"
+    ],
+    "n8n-mcp/.claude": [
+      "agents"
+    ],
+    "n8n-mcp/.claude/agents": [
+      "code-reviewer.md",
+      "context-manager.md",
+      "debugger.md",
+      "deployment-engineer.md",
+      "mcp-backend-engineer.md",
+      "n8n-mcp-tester.md",
+      "technical-researcher.md",
+      "test-automator.md"
+    ],
+    "n8n-mcp/docs": [
+      "ACKNOWLEDGMENTS.md",
+      "ANTIGRAVITY_SETUP.md",
+      "AUTOMATED_RELEASES.md",
+      "CLAUDE_CODE_SETUP.md",
+      "CODEX_SETUP.md",
+      "CURSOR_SETUP.md",
+      "DATABASE_CONFIGURATION.md",
+      "DEPENDENCY_UPDATES.md",
+      "DOCKER_TROUBLESHOOTING.md",
+      "HTTP_DEPLOYMENT.md",
+      "N8N_DEPLOYMENT.md",
+      "RAILWAY_DEPLOYMENT.md",
+      "README.md",
+      "README_CLAUDE_SETUP.md",
+      "SECURITY_HARDENING.md",
+      "SELF_HOSTING.md",
+      "THREAT_MODEL.md",
+      "VS_CODE_PROJECT_SETUP.md",
+      "WINDSURF_SETUP.md",
+      "competitive-analysis-may-2026.md",
+      "img",
+      "local",
+      "workflow-diff-examples.md"
+    ],
+    "n8n-mcp/docs/local": [
+      "DEEP_DIVE_ANALYSIS_2025-10-02.md",
+      "DEEP_DIVE_ANALYSIS_README.md",
+      "Deep_dive_p1_p2.md",
+      "N8N_AI_WORKFLOW_BUILDER_ANALYSIS.md",
+      "P0_IMPLEMENTATION_PLAN.md",
+      "TEMPLATE_MINING_ANALYSIS.md",
+      "integration-testing-plan.md",
+      "integration-tests-phase1-summary.md"
+    ],
+    "n8n-mcp/docs/img": [
+      "Railway_api.png",
+      "Railway_server_address.png",
+      "cc_command.png",
+      "cc_connected.png",
+      "codex_connected.png",
+      "cursor_tut.png",
+      "skills.png",
+      "vsc_ghcp_chat_agent_mode.png",
+      "vsc_ghcp_chat_instruction_files.png",
+      "vsc_ghcp_chat_thinking_tool.png",
+      "windsurf_tut.png"
+    ],
+    "n8n-mcp/examples": [
+      "enhanced-documentation-demo.js"
+    ],
+    "n8n-mcp/scripts": [
+      "analyze-optimization.sh",
+      "audit-schema-coverage.ts",
+      "backfill-mutation-hashes.ts",
+      "build-optimized.sh",
+      "demo-optimization.sh",
+      "deploy-http.sh",
+      "deploy-to-vm.sh",
+      "export-webhook-workflows.ts",
+      "extract-changelog.js",
+      "extract-from-docker.js",
+      "extract-nodes-docker.sh",
+      "extract-nodes-simple.sh",
+      "generate-detailed-reports.js",
+      "generate-initial-release-notes.js",
+      "generate-release-notes.js",
+      "generate-test-summary.js",
+      "http-bridge.js",
+      "mcp-http-client.js",
+      "migrate-nodes-fts.ts",
+      "migrate-tool-docs.ts",
+      "n8n-docs-mcp.service",
+      "nginx-n8n-mcp.conf",
+      "prebuild-fts5.ts",
+      "prepare-release.js",
+      "process-batch-metadata.ts",
+      "publish-npm-quick.sh",
+      "publish-npm.sh",
+      "quick-test.ts",
+      "sync-runtime-version.js",
+      "sync-skills.ts",
+      "test-ai-validation-debug.ts",
+      "test-code-node-enhancements.ts",
+      "test-code-node-fixes.ts",
+      "test-docker-config.sh",
+      "test-docker-fingerprint.ts",
+      "test-docker-optimization.sh",
+      "test-docker.sh",
+      "test-empty-connection-validation.ts",
+      "test-error-message-tracking.ts",
+      "test-error-output-validation.ts",
+      "test-error-validation.js",
+      "test-essentials.ts",
+      "test-expression-code-validation.ts",
+      "test-expression-format-validation.js",
+      "test-fts5-search.ts",
+      "test-fuzzy-fix.ts",
+      "test-fuzzy-simple.ts",
+      "test-helpers-validation.ts",
+      "test-http-search.ts",
+      "test-http.sh",
+      "test-jmespath-validation.ts",
+      "test-multi-tenant-simple.ts",
+      "test-multi-tenant.ts",
+      "test-n8n-integration.sh",
+      "test-node-info.js",
+      "test-node-type-validation.ts",
+      "test-nodes-base-prefix.ts",
+      "test-operation-validation.ts",
+      "test-optimized-docker.sh",
+      "test-release-automation.js",
+      "test-search-improvements.ts",
+      "test-security.ts",
+      "test-single-session.sh",
+      "test-sqljs-triggers.ts",
+      "test-structure-validation.ts",
+      "test-telemetry-debug.ts",
+      "test-telemetry-direct.ts",
+      "test-telemetry-env.ts",
+      "test-telemetry-integration.ts",
+      "test-telemetry-no-select.ts",
+      "test-telemetry-security.ts",
+      "test-telemetry-simple.ts",
+      "test-typeversion-validation.ts",
+      "test-url-configuration.ts",
+      "test-user-id-persistence.ts",
+      "test-webhook-validation.ts",
+      "test-workflow-insert.ts",
+      "test-workflow-sanitizer.ts",
+      "test-workflow-tracking-debug.ts",
+      "test-workflow-versioning.ts",
+      "update-and-publish-prep.sh",
+      "update-n8n-deps.js",
+      "update-readme-version.js"
+    ],
+    "n8n-mcp/.github": [
+      "ABOUT.md",
+      "BENCHMARK_THRESHOLDS.md",
+      "FUNDING.yml",
+      "INCIDENT_RESPONSE.md",
+      "aw",
+      "gh-pages.yml",
+      "secret_scanning.yml",
+      "workflows"
+    ],
+    "n8n-mcp/.github/aw": [
+      "actions-lock.json"
+    ],
+    "n8n-mcp/.github/workflows": [
+      "dependency-check.yml",
+      "docker-build-fast.yml",
+      "docker-build-n8n.yml",
+      "docker-build.yml",
+      "issue-triage.lock.yml",
+      "issue-triage.md",
+      "release.yml",
+      "secret-scan.yml",
+      "test.yml"
+    ],
+    "n8n-mcp/data": [
+      ".gitkeep",
+      "nodes.db",
+      "nodes.db-shm",
+      "nodes.db-wal",
+      "skills",
+      "templates.db",
+      "workflow-patterns.json"
+    ],
+    "n8n-mcp/data/skills": [
+      "n8n-code-javascript",
+      "n8n-code-python",
+      "n8n-expression-syntax",
+      "n8n-mcp-tools-expert",
+      "n8n-node-configuration",
+      "n8n-validation-expert",
+      "n8n-workflow-patterns"
+    ],
+    "n8n-mcp/data/skills/n8n-node-configuration": [
+      "DEPENDENCIES.md",
+      "OPERATION_PATTERNS.md",
+      "README.md",
+      "SKILL.md"
+    ],
+    "n8n-mcp/data/skills/n8n-code-javascript": [
+      "BUILTIN_FUNCTIONS.md",
+      "COMMON_PATTERNS.md",
+      "DATA_ACCESS.md",
+      "ERROR_PATTERNS.md",
+      "README.md",
+      "SKILL.md"
+    ],
+    "n8n-mcp/data/skills/n8n-workflow-patterns": [
+      "README.md",
+      "SKILL.md",
+      "ai_agent_workflow.md",
+      "database_operations.md",
+      "http_api_integration.md",
+      "scheduled_tasks.md",
+      "webhook_processing.md"
+    ],
+    "n8n-mcp/data/skills/n8n-code-python": [
+      "COMMON_PATTERNS.md",
+      "DATA_ACCESS.md",
+      "ERROR_PATTERNS.md",
+      "README.md",
+      "SKILL.md",
+      "STANDARD_LIBRARY.md"
+    ],
+    "n8n-mcp/data/skills/n8n-expression-syntax": [
+      "COMMON_MISTAKES.md",
+      "EXAMPLES.md",
+      "README.md",
+      "SKILL.md"
+    ],
+    "n8n-mcp/data/skills/n8n-validation-expert": [
+      "ERROR_CATALOG.md",
+      "FALSE_POSITIVES.md",
+      "README.md",
+      "SKILL.md"
+    ],
+    "n8n-mcp/data/skills/n8n-mcp-tools-expert": [
+      "README.md",
+      "SEARCH_GUIDE.md",
+      "SKILL.md",
+      "VALIDATION_GUIDE.md",
+      "WORKFLOW_GUIDE.md"
+    ],
+    "n8n-mcp/ui-apps": [
+      "package-lock.json",
+      "package.json",
+      "preview.html",
+      "src",
+      "tsconfig.json",
+      "vite.config.ts"
+    ],
+    "n8n-mcp/ui-apps/src": [
+      "apps",
+      "shared"
+    ],
+    "n8n-mcp/ui-apps/src/shared": [
+      "components",
+      "hooks",
+      "index.ts",
+      "styles",
+      "types.ts"
+    ],
+    "n8n-mcp/ui-apps/src/apps": [
+      "execution-history",
+      "health-dashboard",
+      "operation-result",
+      "validation-summary",
+      "workflow-list"
+    ],
+    "n8n-mcp/src": [
+      "community",
+      "config",
+      "constants",
+      "data",
+      "database",
+      "errors",
+      "http-server-single-session.ts",
+      "http-server.ts",
+      "index.ts",
+      "loaders",
+      "mappers",
+      "mcp",
+      "mcp-engine.ts",
+      "mcp-tools-engine.ts",
+      "n8n",
+      "parsers",
+      "scripts",
+      "services",
+      "telemetry",
+      "templates",
+      "triggers",
+      "types",
+      "utils"
+    ],
+    "n8n-mcp/src/database": [
+      "database-adapter.ts",
+      "migrations",
+      "node-repository.ts",
+      "nodes.db",
+      "schema-optimized.sql",
+      "schema.sql",
+      "shared-database.ts"
+    ],
+    "n8n-mcp/src/database/migrations": [
+      "add-template-node-configs.sql"
+    ],
+    "n8n-mcp/src/parsers": [
+      "node-parser.ts",
+      "property-extractor.ts",
+      "simple-parser.ts"
+    ],
+    "n8n-mcp/src/types": [
+      "additional-tools.ts",
+      "generate-workflow.ts",
+      "index.ts",
+      "instance-context.ts",
+      "n8n-api.ts",
+      "node-types.ts",
+      "session-state.ts",
+      "type-structures.ts",
+      "workflow-diff.ts"
+    ],
+    "n8n-mcp/src/config": [
+      "n8n-api.ts"
+    ],
+    "n8n-mcp/src/triggers": [
+      "handlers",
+      "index.ts",
+      "trigger-detector.ts",
+      "trigger-registry.ts",
+      "types.ts"
+    ],
+    "n8n-mcp/src/triggers/handlers": [
+      "base-handler.ts",
+      "chat-handler.ts",
+      "form-handler.ts",
+      "webhook-handler.ts"
+    ],
+    "n8n-mcp/src/constants": [
+      "type-structures.ts"
+    ],
+    "n8n-mcp/src/utils": [
+      "auth.ts",
+      "bridge.ts",
+      "cache-utils.ts",
+      "console-manager.ts",
+      "documentation-fetcher.ts",
+      "enhanced-documentation-fetcher.ts",
+      "error-handler.ts",
+      "example-generator.ts",
+      "expression-utils.ts",
+      "fixed-collection-validator.ts",
+      "logger.ts",
+      "mcp-client.ts",
+      "n8n-errors.ts",
+      "node-classification.ts",
+      "node-source-extractor.ts",
+      "node-type-normalizer.ts",
+      "node-type-utils.ts",
+      "node-utils.ts",
+      "npm-version-checker.ts",
+      "protocol-version.ts",
+      "redaction.ts",
+      "simple-cache.ts",
+      "ssrf-protection.ts",
+      "template-node-resolver.ts",
+      "template-sanitizer.ts",
+      "typeversion.ts",
+      "url-detector.ts",
+      "validation-schemas.ts",
+      "version.ts"
+    ],
+    "n8n-mcp/src/mcp": [
+      "handlers-n8n-manager.ts",
+      "handlers-workflow-diff.ts",
+      "index.ts",
+      "server.ts",
+      "skills",
+      "stdio-wrapper.ts",
+      "tool-docs",
+      "tools-documentation.ts",
+      "tools-n8n-friendly.ts",
+      "tools-n8n-manager.ts",
+      "tools.ts",
+      "ui",
+      "workflow-examples.ts"
+    ],
+    "n8n-mcp/src/mcp/ui": [
+      "app-configs.ts",
+      "index.ts",
+      "registry.ts",
+      "types.ts"
+    ],
+    "n8n-mcp/src/mcp/tool-docs": [
+      "configuration",
+      "discovery",
+      "guides",
+      "index.ts",
+      "system",
+      "templates",
+      "types.ts",
+      "validation",
+      "workflow_management"
+    ],
+    "n8n-mcp/src/mcp/skills": [
+      "index.ts",
+      "registry.ts",
+      "types.ts"
+    ],
+    "n8n-mcp/src/n8n": [
+      "MCPApi.credentials.ts",
+      "MCPNode.node.ts"
+    ],
+    "n8n-mcp/src/scripts": [
+      "debug-http-search.ts",
+      "extract-from-docker.ts",
+      "fetch-community-nodes.ts",
+      "fetch-templates-robust.ts",
+      "fetch-templates.ts",
+      "generate-community-docs.ts",
+      "migrate-readme-columns.ts",
+      "mine-workflow-patterns.ts",
+      "rebuild-database.ts",
+      "rebuild-optimized.ts",
+      "rebuild.ts",
+      "sanitize-templates.ts",
+      "seed-canonical-ai-examples.ts",
+      "test-autofix-documentation.ts",
+      "test-autofix-workflow.ts",
+      "test-execution-filtering.ts",
+      "test-node-suggestions.ts",
+      "test-protocol-negotiation.ts",
+      "test-summary.ts",
+      "test-telemetry-mutations-verbose.ts",
+      "test-telemetry-mutations.ts",
+      "test-webhook-autofix.ts",
+      "validate.ts",
+      "validation-summary.ts"
+    ],
+    "n8n-mcp/src/templates": [
+      "README.md",
+      "batch-processor.ts",
+      "metadata-generator.ts",
+      "sequential-processor.ts",
+      "template-fetcher.ts",
+      "template-repository.ts",
+      "template-service.ts"
+    ],
+    "n8n-mcp/src/mappers": [
+      "docs-mapper.ts"
+    ],
+    "n8n-mcp/src/telemetry": [
+      "batch-processor.ts",
+      "config-manager.ts",
+      "early-error-logger.ts",
+      "error-sanitization-utils.ts",
+      "error-sanitizer.ts",
+      "event-tracker.ts",
+      "event-validator.ts",
+      "index.ts",
+      "intent-classifier.ts",
+      "intent-sanitizer.ts",
+      "mutation-tracker.ts",
+      "mutation-types.ts",
+      "mutation-validator.ts",
+      "performance-monitor.ts",
+      "rate-limiter.ts",
+      "startup-checkpoints.ts",
+      "telemetry-cli.ts",
+      "telemetry-error.ts",
+      "telemetry-manager.ts",
+      "telemetry-types.ts",
+      "workflow-sanitizer.ts"
+    ],
+    "n8n-mcp/src/errors": [
+      "validation-service-error.ts"
+    ],
+    "n8n-mcp/src/community": [
+      "community-node-fetcher.ts",
+      "community-node-service.ts",
+      "documentation-batch-processor.ts",
+      "documentation-generator.ts",
+      "index.ts"
+    ],
+    "n8n-mcp/src/data": [
+      "canonical-ai-tool-examples.json"
+    ],
+    "n8n-mcp/src/loaders": [
+      "node-loader.ts"
+    ],
+    "n8n-mcp/src/services": [
+      "ai-node-validator.ts",
+      "ai-tool-validators.ts",
+      "audit-report-builder.ts",
+      "breaking-change-detector.ts",
+      "breaking-changes-registry.ts",
+      "confidence-scorer.ts",
+      "config-validator.ts",
+      "credential-scanner.ts",
+      "enhanced-config-validator.ts",
+      "error-execution-processor.ts",
+      "example-generator.ts",
+      "execution-processor.ts",
+      "expression-format-validator.ts",
+      "expression-validator.ts",
+      "n8n-api-client.ts",
+      "n8n-validation.ts",
+      "n8n-version.ts",
+      "node-documentation-service.ts",
+      "node-migration-service.ts",
+      "node-sanitizer.ts",
+      "node-similarity-service.ts",
+      "node-specific-validators.ts",
+      "node-version-service.ts",
+      "operation-similarity-service.ts",
+      "post-update-validator.ts",
+      "property-dependencies.ts",
+      "property-filter.ts",
+      "resource-similarity-service.ts",
+      "sqlite-storage-service.ts",
+      "task-templates.ts",
+      "tool-variant-generator.ts",
+      "type-structure-service.ts",
+      "universal-expression-validator.ts",
+      "workflow-auto-fixer.ts",
+      "workflow-diff-engine.ts",
+      "workflow-security-scanner.ts",
+      "workflow-validator.ts",
+      "workflow-versioning-service.ts"
+    ]
+  },
+  "last_updated": "2026-06-07T21:38:44.660810+00:00"
+}

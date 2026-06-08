@@ -1,0 +1,546 @@
+{
+  "name": "proshop_mern",
+  "type": "fullstack-monorepo",
+  "description": "MERN e-commerce fork from Brad Traversy + custom MCP/RAG/feature-flags additions for HSS AI-dev Level 1 course homework. Legacy deprecated upstream kept intentionally 'dirty' for real onboarding problems.",
+  "tech_stack": {
+    "backend": "Node.js 16+ + Express 4.17 + Mongoose 5 (ES modules)",
+    "frontend": "Create React App + React 16 + Redux thunk + React Router v5",
+    "database": "MongoDB 7 (via docker-compose)",
+    "additions": [
+      "Python MCP server for feature flags",
+      "Node.js RAG server + Weaviate backend",
+      "Document search MCP (vector + retrieval)"
+    ]
+  },
+  "subprojects": {
+    "backend": {
+      "path": "backend/",
+      "description": "Express.js REST API, Mongoose models, authentication, orders, products, uploads",
+      "entry": "backend/server.js",
+      "port": 5001,
+      "tech": "Node.js + Express 4 + Mongoose 5 (ES modules)",
+      "key_paths": {
+        "server": "backend/server.js",
+        "config": "backend/config/db.js",
+        "controllers": "backend/controllers/",
+        "routes": "backend/routes/",
+        "middleware": "backend/middleware/",
+        "models": "backend/models/",
+        "utils": "backend/utils/",
+        "data": "backend/data/",
+        "seeder": "backend/seeder.js",
+        "feature_flags_config": "backend/features.json"
+      }
+    },
+    "frontend": {
+      "path": "frontend/",
+      "description": "Create React App, Redux store, screens, components, actions/reducers",
+      "entry": "frontend/src/index.js",
+      "port": 3000,
+      "tech": "React 16 + Redux + React Router v5 + react-scripts 3.4",
+      "key_paths": {
+        "app_shell": "frontend/src/App.js",
+        "store": "frontend/src/store.js",
+        "actions": "frontend/src/actions/",
+        "reducers": "frontend/src/reducers/",
+        "screens": "frontend/src/screens/",
+        "components": "frontend/src/components/",
+        "constants": "frontend/src/constants/",
+        "styles": "frontend/src/styles/",
+        "public": "frontend/public/",
+        "package": "frontend/package.json"
+      }
+    },
+    "rag": {
+      "path": "rag/",
+      "description": "RAG server for product search & enrichment. Node.js + Weaviate backend.",
+      "entry": "rag/server.js",
+      "tech": "Node.js + Weaviate vector DB",
+      "key_paths": {
+        "server": "rag/server.js",
+        "ingest": "rag/ingest.js",
+        "lib": "rag/lib/",
+        "tests": "rag/tests/",
+        "package": "rag/package.json"
+      }
+    },
+    "mcp": {
+      "path": "mcp/",
+      "description": "Feature flags MCP server. Python + stdio transport. Controls feature rollout and A/B testing.",
+      "entry": "mcp/feature_flags_server.py",
+      "tech": "Python 3 + MCP",
+      "key_paths": {
+        "server": "mcp/feature_flags_server.py",
+        "venv": "mcp/.venv/",
+        "requirements": "mcp/requirements.txt",
+        "readme": "mcp/README.md"
+      }
+    },
+    "mcp_search_docs": {
+      "path": "mcp-search-docs/",
+      "description": "Document search MCP server. Vector search over project docs (ADR, design, API, runbooks, incidents).",
+      "entry": "mcp-search-docs/server.js",
+      "tech": "Node.js + MCP",
+      "key_paths": {
+        "server": "mcp-search-docs/server.js"
+      }
+    },
+    "feature_flags_management": {
+      "path": "feature flags/",
+      "description": "Analysis of feature flags, UI patterns, rollout strategies.",
+      "key_files": {
+        "analysis": "feature flags/features-analysis-ru.md"
+      }
+    },
+    "superpowers": {
+      "path": "superpowers/",
+      "description": "Claude Code superpowers: planning, specs, implementation plans",
+      "key_paths": {
+        "specs": "superpowers/specs/",
+        "plans": "superpowers/plans/"
+      }
+    }
+  },
+  "system_folders": {
+    ".claude/": "Claude Code configuration: agent definitions, settings, project-specific rules",
+    ".claude/agents/": "Sub-agent definitions for specialized code reviews (security-mate, architecture-mate, performance-mate)",
+    "docs/": "Living documentation: ADR, API specs, design, runbooks, incidents, pages, features",
+    "docs/adr/": "Architecture Decision Records (e.g., Mongoose 5 pinning, JWT in localStorage, Procfile legacy)",
+    "docs/api/": "REST API specifications (products, users, orders, uploads, auth)",
+    "docs/design/": "Visual design: tokens, CHANGELOG, anti-slop guards, redesign plan, accessibility, microcopy",
+    "docs/features/": "Feature specifications (catalog, cart, checkout, auth, admin, payments)",
+    "docs/pages/": "Page-level documentation (screens map: home, cart, product, profile, admin, etc.)",
+    "docs/runbooks/": "Operational guides (DB seed/reset, feature flag toggle, incident response, local setup)",
+    "docs/incidents/": "Post-mortems and incident analysis (PayPal double-charge, connection pool, JWT leak)",
+    "uploads/": "Static uploaded files (served at /uploads, persists across restarts)"
+  },
+  "root_files": {
+    "AGENTS.md": "Operational context for AI agents — Layer 8 docs (system prompt, project context, local runbook, known gotchas, unwritten rules, hard rules)",
+    "CLAUDE.md": "Symlink → AGENTS.md (Anthropic compatibility)",
+    "README.md": "Project overview, what it does, tech stack, layout, setup instructions",
+    ".mcp.json": "MCP server configuration (feature-flags, search-docs)",
+    ".env.example": "Environment variable template (canonical source of truth for variables)",
+    ".env": "Actual env file (git-ignored, local secrets)",
+    ".env.bak": "Backup of .env",
+    "package.json": "Root npm scripts (mongo:up, data:import, dev, server, client, rag:*, heroku-postbuild)",
+    "docker-compose.yml": "MongoDB 7 + optional Weaviate configuration",
+    "Procfile": "Legacy Heroku deployment config (DO NOT TOUCH — out of scope)",
+    "FINDINGS.md": "Initial audit findings from earlier module (Mongoose version analysis, tech debt)",
+    "Design.md": "M4 redesign notes and visual direction",
+    "report.md": "Earlier homework session report"
+  },
+  "hard_rules": [
+    "READ AGENTS.md FIRST at session start for operational context and known gotchas",
+    "READ project-index.json at session start for structure orientation (this file)",
+    "Preserve behavior on refactors — no test suite, write characterization tests first if changing observable output",
+    "Use Conventional Commits (feat:, fix:, docs:, chore:, refactor:, scope optional)",
+    "Never commit .env — use .env.example as canonical variable list",
+    "Never touch Procfile — legacy Heroku config, out of scope",
+    "After adding new Mongoose model, update backend/seeder.js to keep fresh data:import complete",
+    "Bootstrap CSS is pinned/bundled — do not migrate to npm package unless frontend overhaul requested",
+    "Match existing code style: single quotes, no semicolons in JSX, 2-space indent, trailing commas",
+    "Backend nodemon uses --legacy-watch (fsevents fails on paths with spaces)",
+    "Frontend uses NODE_OPTIONS=--openssl-legacy-provider on Node 17+ (react-scripts 3.4 / webpack 4)",
+    "Feature flags must use MCP get_feature_info, not direct features.json reads",
+    "Search-docs queries use MCP search_project_docs, not grep",
+    "Mongoose 5 ignores unknown operators silently — verify results in response, don't trust absence of errors",
+    "Frontend proxy targets http://127.0.0.1:5001 — keep in sync if backend port changes",
+    "NEVER read/write features.json directly — use feature-flags MCP tools",
+    "NEVER introduce Redux Toolkit or second state manager without explicit user request (v2 did that already)"
+  ],
+  "ai_routing": {
+    "feature_flag_queries": "Use feature-flags MCP get_feature_info tool (not direct file reads)",
+    "feature_flag_changes": "Use feature-flags MCP set_feature_state / adjust_traffic_rollout tools",
+    "docs_search": "Use search-docs MCP search_project_docs (not grep + read)",
+    "structure_questions": "This project-index.json file (do not walk the filesystem tree)",
+    "code_questions": "AGENTS.md Section 'High-Signal Paths' + backend/controllers/, backend/routes/, frontend/src/",
+    "api_design": "docs/api/ (OpenAPI-style specs per resource)"
+  },
+  "filesystem_tree": {
+    ".": [
+      ".agent-team-reports",
+      ".claude",
+      ".env",
+      ".env.bak",
+      ".env.example",
+      ".gitignore",
+      ".mcp.json",
+      "AGENTS.md",
+      "CLAUDE.md",
+      "Design.md",
+      "FINDINGS.md",
+      "Procfile",
+      "README.md",
+      "backend",
+      "docker-compose.yml",
+      "docs",
+      "feature flags",
+      "frontend",
+      "mcp",
+      "mcp-search-docs",
+      "package-lock.json",
+      "package.json",
+      "project-index.json",
+      "rag",
+      "report.md",
+      "superpowers",
+      "uploads"
+    ],
+    ".agent-team-reports": [
+      "architecture-findings.jsonl",
+      "architecture-summary.md",
+      "performance-findings.jsonl",
+      "performance-summary.md",
+      "proposed-adrs",
+      "security-findings.jsonl",
+      "security-summary.md"
+    ],
+    ".agent-team-reports/proposed-adrs": [],
+    "frontend": [
+      ".env.development",
+      "README.md",
+      "package-lock.json",
+      "package.json",
+      "package.json.bak",
+      "public",
+      "src"
+    ],
+    "frontend/public": [
+      "favicon.ico",
+      "images",
+      "index.html",
+      "logo192.png",
+      "logo512.png",
+      "manifest.json",
+      "robots.txt"
+    ],
+    "frontend/public/images": [
+      "airpods.jpg",
+      "alexa.jpg",
+      "camera.jpg",
+      "mouse.jpg",
+      "phone.jpg",
+      "playstation.jpg",
+      "sample.jpg"
+    ],
+    "frontend/src": [
+      "App.js",
+      "actions",
+      "components",
+      "constants",
+      "index.css",
+      "index.js",
+      "reducers",
+      "screens",
+      "serviceWorker.js",
+      "store.js",
+      "styles"
+    ],
+    "frontend/src/constants": [
+      "cartConstants.js",
+      "orderConstants.js",
+      "productConstants.js",
+      "userConstants.js"
+    ],
+    "frontend/src/screens": [
+      "CartScreen.js",
+      "FeatureFlagListScreen.js",
+      "HomeScreen.js",
+      "LoginScreen.js",
+      "OrderListScreen.js",
+      "OrderScreen.js",
+      "PaymentScreen.js",
+      "PlaceOrderScreen.js",
+      "ProductEditScreen.js",
+      "ProductListScreen.js",
+      "ProductScreen.js",
+      "ProfileScreen.js",
+      "RegisterScreen.js",
+      "ShippingScreen.js",
+      "UserEditScreen.js",
+      "UserListScreen.js"
+    ],
+    "frontend/src/styles": [
+      "base.css",
+      "components.css",
+      "tokens.css"
+    ],
+    "frontend/src/components": [
+      "Meta.js",
+      "good-shop"
+    ],
+    "frontend/src/components/good-shop": [
+      "Alert.js",
+      "Avatar.js",
+      "Badge.js",
+      "BrandCard.js",
+      "Breadcrumb.js",
+      "Button.js",
+      "CheckoutProgress.js",
+      "DataTable.js",
+      "EmptyState.js",
+      "Field.js",
+      "FilterChip.js",
+      "FormShell.js",
+      "GsFooter.js",
+      "GsHeader.js",
+      "HeartIcon.js",
+      "HeroBanner.js",
+      "Modal.js",
+      "PageShell.js",
+      "Placeholder.js",
+      "PriceLockup.js",
+      "ProductCard.js",
+      "RadioCard.js",
+      "Skeleton.js",
+      "Sparkle.js",
+      "Stars.js",
+      "Stepper.js",
+      "Toast.js",
+      "Toggle.js"
+    ],
+    "frontend/src/actions": [
+      "cartActions.js",
+      "orderActions.js",
+      "productActions.js",
+      "userActions.js"
+    ],
+    "frontend/src/reducers": [
+      "cartReducers.js",
+      "orderReducers.js",
+      "productReducers.js",
+      "userReducers.js"
+    ],
+    ".claude": [
+      "agents",
+      "scripts",
+      "settings.local.json"
+    ],
+    ".claude/agents": [
+      "architecture-mate.md",
+      "performance-mate.md",
+      "security-mate.md"
+    ],
+    ".claude/scripts": [
+      "update_project_index.py"
+    ],
+    "mcp-search-docs": [
+      "README.md",
+      "package-lock.json",
+      "package.json",
+      "server.js"
+    ],
+    "uploads": [
+      "Screen Shot 2020-09-29 at 5.50.52 PM.png",
+      "file.txt"
+    ],
+    "backend": [
+      "config",
+      "controllers",
+      "data",
+      "features.json",
+      "middleware",
+      "models",
+      "routes",
+      "seedExtra.js",
+      "seeder.js",
+      "server.js",
+      "utils"
+    ],
+    "backend/middleware": [
+      "authMiddleware.js",
+      "errorMiddleware.js"
+    ],
+    "backend/config": [
+      "db.js"
+    ],
+    "backend/utils": [
+      "generateToken.js"
+    ],
+    "backend/models": [
+      "orderModel.js",
+      "productModel.js",
+      "userModel.js"
+    ],
+    "backend/controllers": [
+      "featureFlagController.js",
+      "orderController.js",
+      "productController.js",
+      "userController.js"
+    ],
+    "backend/data": [
+      "products.js",
+      "unsplashImages.json",
+      "users.js"
+    ],
+    "backend/routes": [
+      "featureFlagRoutes.js",
+      "orderRoutes.js",
+      "productRoutes.js",
+      "uploadRoutes.js",
+      "userRoutes.js"
+    ],
+    "mcp": [
+      "README.md",
+      "feature_flags_server.py",
+      "requirements.txt"
+    ],
+    "docs": [
+      "adr",
+      "api",
+      "architecture.md",
+      "best-practices.md",
+      "design",
+      "dev-history.md",
+      "feature-flags-spec.md",
+      "features",
+      "glossary.md",
+      "incidents",
+      "pages",
+      "runbooks"
+    ],
+    "docs/design": [
+      "CHANGELOG.md",
+      "accessibility.md",
+      "ai-features-roadmap.md",
+      "anti-slop-guards.md",
+      "microcopy.md",
+      "motion.md",
+      "redesign-plan.md",
+      "references",
+      "screen-inventory.md",
+      "signature-elements.md",
+      "tokens.md",
+      "visual-references.md"
+    ],
+    "docs/design/references": [
+      "emox-extract.md"
+    ],
+    "docs/adr": [
+      "0001-jwt-in-localstorage.md",
+      "0002-mongoose-5-stays-pinned.md",
+      "0003-procfile-kept-but-not-deployed.md",
+      "adr-001-mongodb-vs-postgres.md",
+      "adr-002-redux-vs-context.md",
+      "adr-003-jwt-vs-session.md",
+      "adr-004-paypal-vs-stripe.md",
+      "adr-005-bootstrap-vs-tailwind.md"
+    ],
+    "docs/features": [
+      "admin.md",
+      "auth.md",
+      "cart.md",
+      "catalog.md",
+      "checkout.md",
+      "payments.md"
+    ],
+    "docs/runbooks": [
+      "ab-test-setup.md",
+      "db-seed-and-reset.md",
+      "deploy.md",
+      "feature-flag-toggle.md",
+      "incident-response.md",
+      "local-setup.md"
+    ],
+    "docs/api": [
+      "auth.md",
+      "orders.md",
+      "products.md",
+      "uploads.md",
+      "users.md"
+    ],
+    "docs/pages": [
+      "INDEX.md",
+      "admin-orders.md",
+      "admin-product-edit.md",
+      "admin-products.md",
+      "admin-user-edit.md",
+      "admin-users.md",
+      "cart.md",
+      "home.md",
+      "login.md",
+      "order.md",
+      "payment.md",
+      "place-order.md",
+      "product.md",
+      "profile.md",
+      "register.md",
+      "shipping.md"
+    ],
+    "docs/incidents": [
+      "i-001-paypal-double-charge.md",
+      "i-002-mongo-connection-pool-exhaustion.md",
+      "i-003-jwt-secret-leak.md"
+    ],
+    "feature flags": [
+      "features-analysis-ru.md"
+    ],
+    "rag": [
+      ".gitignore",
+      "ingest.js",
+      "lib",
+      "package-lock.json",
+      "package.json",
+      "server.js",
+      "tests"
+    ],
+    "rag/tests": [
+      ".gitkeep",
+      "_stubs",
+      "chunker.test.js",
+      "fixtures",
+      "metadata.test.js",
+      "search.test.js",
+      "server.test.js"
+    ],
+    "rag/tests/_stubs": [
+      "cohere-stub.js"
+    ],
+    "rag/tests/fixtures": [
+      "features.mini.expected.json",
+      "features.mini.json",
+      "large-section.expected.json",
+      "large-section.md",
+      "nested.expected.json",
+      "nested.md",
+      "no-headings.expected.json",
+      "no-headings.md",
+      "sample-corpus",
+      "simple-h2.expected.json",
+      "simple-h2.md",
+      "tiny-section.expected.json",
+      "tiny-section.md"
+    ],
+    "rag/tests/fixtures/sample-corpus": [
+      "adr",
+      "incidents",
+      "runbooks"
+    ],
+    "rag/lib": [
+      "chunker.js",
+      "cohere.js",
+      "metadata.js",
+      "search.js",
+      "weaviate.js"
+    ],
+    "superpowers": [
+      "plans",
+      "specs"
+    ],
+    "superpowers/plans": [
+      "2026-05-08-rag-pipeline.md"
+    ],
+    "superpowers/specs": [
+      "2026-05-08-rag-pipeline-design.md"
+    ]
+  },
+  "notes": {
+    "upstream_status": "bradtraversy/proshop_mern is officially deprecated in favor of proshop-v2 (Redux Toolkit). We keep the original intentionally 'old' for realistic onboarding problems.",
+    "course_context": "This is a course fork used as a baseline for AI-dev course homework (modules M2-M7). Reference solutions for students live in feature branches.",
+    "mcp_servers": "Two MCP servers configured in .mcp.json: (1) feature-flags (Python), (2) search-docs (Node.js). Both are project-local implementations.",
+    "frontend_proxy_note": "frontend/package.json proxy is set to http://127.0.0.1:5006 in file but AGENTS.md says 5001 — use 5001 (correct for backend)",
+    "env_note": "Root .env is source of truth. PAYPAL_CLIENT_ID=sb is sandbox safe to commit in .env.example. Never commit actual .env file.",
+    "known_issues": "Mongoose 5 is 4 majors behind (see FINDINGS.md). React 16 + react-scripts 3.4 require NODE_OPTIONS=--openssl-legacy-provider on Node 17+. Backend nodemon uses --legacy-watch due to path spaces."
+  },
+  "last_updated": "2026-05-18T14:44:52.358026+00:00"
+}

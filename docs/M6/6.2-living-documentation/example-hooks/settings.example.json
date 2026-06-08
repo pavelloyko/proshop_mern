@@ -1,0 +1,50 @@
+{
+  "_comment_1": "ЭТО ПРИМЕР файла .claude/settings.json (или .claude/settings.local.json).",
+  "_comment_2": "В Claude Code НЕТ отдельной папки .claude/hooks/. Хук = JSON-конфиг ниже.",
+  "_comment_3": "Каждый hook = (matcher) + (команда которую CC запустит когда matcher сработал).",
+  "_comment_4": "Положи этот файл (без _comment_* ключей) в .claude/settings.json своего fork`а.",
+  "_comment_5": "Подробное описание событий и payload: https://code.claude.com/docs/en/hooks",
+
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+
+  "hooks": {
+    "PostToolUse": [
+      {
+        "_doc": "Срабатывает ПОСЛЕ Write/Edit/Bash. Скрипт получает JSON payload через stdin и решает обновлять ли index.",
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/scripts/update_project_index.py\""
+          }
+        ]
+      }
+    ],
+
+    "SessionStart": [
+      {
+        "_doc": "При старте CC-сессии — печатает напоминание в stderr (видит и Claude и пользователь).",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '✅ Read project-index.json first for repo structure. Run scripts/update_project_index.py after structural changes.'"
+          }
+        ]
+      }
+    ],
+
+    "Stop": [
+      {
+        "_doc": "При завершении сессии — финальный update индекса, чтобы ничего не упустить.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/scripts/update_project_index.py\""
+          }
+        ]
+      }
+    ]
+  }
+}
